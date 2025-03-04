@@ -10,21 +10,6 @@ import (
 	mail "github.com/xhit/go-simple-mail/v2"
 )
 
-// Mail holds the information necessary to connect to an SMTP server
-type Mail struct {
-	Domain      string
-	Templates   string
-	Host        string
-	Port        int
-	Username    string
-	Password    string
-	Encryption  string
-	FromAddress string
-	FromName    string
-	Jobs        chan Message
-	Results     chan Result
-}
-
 // Message is the type for an email message
 type Message struct {
 	From        string
@@ -42,10 +27,58 @@ type Result struct {
 	Error   error
 }
 
+type Config struct {
+	Domain      string
+	Templates   string
+	Host        string
+	Port        int
+	Username    string
+	Password    string
+	Encryption  string
+	FromAddress string
+	FromName    string
+	BaseURL     string
+	JobsSize    int
+	ResultsSize int
+}
+
+// Mailer holds the information necessary to connect to an SMTP server
+type Mailer struct {
+	Domain      string
+	Templates   string
+	Host        string
+	Port        int
+	Username    string
+	Password    string
+	Encryption  string
+	FromAddress string
+	FromName    string
+	BaseURL     string
+	Jobs        chan Message
+	Results     chan Result
+}
+
+func New(cfg Config) *Mailer {
+	return &Mailer{
+		Domain:      cfg.Domain,
+		Templates:   cfg.Templates,
+		Host:        cfg.Host,
+		Port:        cfg.Port,
+		Username:    cfg.Username,
+		Password:    cfg.Password,
+		Encryption:  cfg.Encryption,
+		FromAddress: cfg.FromAddress,
+		FromName:    cfg.FromName,
+		BaseURL:     cfg.BaseURL,
+		Jobs:        make(chan Message, cfg.JobsSize),
+		Results:     make(chan Result, cfg.ResultsSize),
+	}
+}
+
 // ListenForMail listens to the mail channel and sends mail
 // when it receives a payload. It runs continually in the background,
 // and sends error/success messages back on the Results channel.
-func (m *Mail) ListenForMail() {
+func (m *Mailer) ListenForMail() {
 	for {
 		msg := <-m.Jobs
 		err := m.SendSMTPMessage(msg)
@@ -57,7 +90,7 @@ func (m *Mail) ListenForMail() {
 	}
 }
 
-func (m *Mail) SendSMTPMessage(msg Message) error {
+func (m *Mailer) SendSMTPMessage(msg Message) error {
 	formattedMessage, err := m.buildHTMLMessage(msg)
 	if err != nil {
 		return err
@@ -106,21 +139,19 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 }
 
 // getEncryption returns the appropriate encryption type based on a string value
-func (m *Mail) getEncryption(e string) mail.Encryption {
+func (m *Mailer) getEncryption(e string) mail.Encryption {
 	switch e {
 	case "tls":
 		return mail.EncryptionSTARTTLS
 	case "ssl":
 		return mail.EncryptionSSL
-	case "none":
-		return mail.EncryptionNone
 	default:
-		return mail.EncryptionSTARTTLS
+		return mail.EncryptionNone
 	}
 }
 
 // buildHTMLMessage creates the html version of the message
-func (m *Mail) buildHTMLMessage(msg Message) (string, error) {
+func (m *Mailer) buildHTMLMessage(msg Message) (string, error) {
 	templateToRender := fmt.Sprintf("%s/%s.html.tmpl", m.Templates, msg.Template)
 
 	t, err := template.New("email-html").ParseFiles(templateToRender)
@@ -143,7 +174,7 @@ func (m *Mail) buildHTMLMessage(msg Message) (string, error) {
 }
 
 // buildPlainTextMessage creates the plaintext version of the message
-func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
+func (m *Mailer) buildPlainTextMessage(msg Message) (string, error) {
 	templateToRender := fmt.Sprintf("%s/%s.plain.tmpl", m.Templates, msg.Template)
 
 	t, err := template.New("email-html").ParseFiles(templateToRender)
@@ -162,7 +193,7 @@ func (m *Mail) buildPlainTextMessage(msg Message) (string, error) {
 }
 
 // inlineCSS takes html input as a string, and inlines css where possible
-func (m *Mail) inlineCSS(s string) (string, error) {
+func (m *Mailer) inlineCSS(s string) (string, error) {
 	options := premailer.Options{
 		RemoveClasses:     false,
 		CssToAttributes:   false,

@@ -12,15 +12,14 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-var mail = mailer.Mail{
+var testMailer = mailer.New(mailer.Config{
 	Domain:      "localhost",
 	Templates:   "./testdata/mail",
-	Encryption:  "none",
 	FromAddress: "me@here.com",
 	FromName:    "Joe",
-	Jobs:        make(chan mailer.Message, 1),
-	Results:     make(chan mailer.Result, 1),
-}
+	JobsSize:    1,
+	ResultsSize: 1,
+})
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
@@ -39,24 +38,24 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-    host, err := mailhog.Host(ctx)
-    if err != nil {
-        log.Print(err)
-        return
-    }
+	host, err := mailhog.Host(ctx)
+	if err != nil {
+		log.Print(err)
+		return
+	}
 
-    port, err := mailhog.MappedPort(ctx, "1025")
-    if err != nil {
-        log.Print(err)
-        return
-    }
+	port, err := mailhog.MappedPort(ctx, "1025")
+	if err != nil {
+		log.Print(err)
+		return
+	}
 
-    mail.Host = host
-	mail.Port = port.Int()
+	testMailer.Host = host
+	testMailer.Port = port.Int()
 
 	time.Sleep(2 * time.Second)
 
-	go mail.ListenForMail()
+	go testMailer.ListenForMail()
 
 	code := m.Run()
 

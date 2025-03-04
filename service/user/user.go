@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/garnizeh/go-web-boilerplate/pkg/mailer"
 	"github.com/garnizeh/go-web-boilerplate/pkg/securepass"
 	"github.com/garnizeh/go-web-boilerplate/storage"
 	"github.com/garnizeh/go-web-boilerplate/storage/datastore"
@@ -135,13 +136,11 @@ func (s *Service) Signup(
 			return fmt.Errorf("failed to create the user in the database: %w", err)
 		}
 
-		token := uuid.New().String()
-		mail := mailer.NewMailSignup(baseURL, email, name, token)
-
 		if err := queries.DeleteSignupTokensByEmail(ctx, email); err != nil {
 			return fmt.Errorf("failed to delete existing signup tokens for the email %q in the database: %w", email, err)
 		}
 
+		token := uuid.New().String()
 		expiresAt := time.Now().Add(tokenDurationSignup).UTC().UnixMilli()
 		if err := queries.CreateToken(ctx, datastore.CreateTokenParams{
 			Token:     token,
@@ -152,9 +151,10 @@ func (s *Service) Signup(
 			return fmt.Errorf("failed to create the signup token in the database: %w", err)
 		}
 
-		if err := s.mailer.SendMailSignup(mail); err != nil {
-			return fmt.Errorf("failed to send the signup confirmation email: %w", err)
-		}
+		// mail := mailer.NewMailSignup(baseURL, email, name, token)
+		// if err := s.mailer.SendMailSignup(mail); err != nil {
+		// 	return fmt.Errorf("failed to send the signup confirmation email: %w", err)
+		// }
 
 		return nil
 	}); err != nil {
@@ -182,13 +182,11 @@ func (s *Service) ResendSignupToken(
 			return ErrUserAlreadyVerified
 		}
 
-		token := uuid.New().String()
-		mail := mailer.NewMailSignup(baseURL, email, user.Name, token)
-
 		if err := queries.DeleteSignupTokensByEmail(ctx, email); err != nil {
 			return fmt.Errorf("failed to delete existing signup tokens for the email %q in the database: %w", email, err)
 		}
 
+		token := uuid.New().String()
 		expiresAt := time.Now().Add(tokenDurationSignup).UTC().UnixMilli()
 		if err := queries.CreateToken(ctx, datastore.CreateTokenParams{
 			Token:     token,
@@ -199,9 +197,10 @@ func (s *Service) ResendSignupToken(
 			return fmt.Errorf("failed to create the signup token in the database: %w", err)
 		}
 
-		if err := s.mailer.SendMailSignup(mail); err != nil {
-			return fmt.Errorf("failed to send the signup confirmation email: %w", err)
-		}
+		// mail := mailer.NewMailSignup(baseURL, email, user.Name, token)
+		// if err := s.mailer.SendMailSignup(mail); err != nil {
+		// 	return fmt.Errorf("failed to send the signup confirmation email: %w", err)
+		// }
 
 		return nil
 	}); err != nil {
@@ -267,13 +266,11 @@ func (s *Service) ResetPassword(
 			return ErrUserNotVerified
 		}
 
-		token := uuid.New().String()
-		mail := mailer.NewMailPassword(baseURL, email, user.Name, token)
-
 		if err := queries.DeletePasswordTokensByEmail(ctx, email); err != nil {
 			return fmt.Errorf("failed to delete existing reset password tokens for the email %q in the database: %w", email, err)
 		}
 
+		token := uuid.New().String()
 		expiresAt := time.Now().Add(tokenDurationPassword).UTC().UnixMilli()
 		if err := queries.CreateToken(ctx, datastore.CreateTokenParams{
 			Token:     token,
@@ -284,9 +281,10 @@ func (s *Service) ResetPassword(
 			return fmt.Errorf("failed to create the reset password token in the database: %w", err)
 		}
 
-		if err := s.mailer.SendMailSignup(mail); err != nil {
-			return fmt.Errorf("failed to send the reset password email: %w", err)
-		}
+		// mail := mailer.NewMailPassword(baseURL, email, user.Name, token)
+		// if err := s.mailer.SendMailSignup(mail); err != nil {
+		// 	return fmt.Errorf("failed to send the reset password email: %w", err)
+		// }
 
 		return nil
 	}); err != nil {
