@@ -4,11 +4,10 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/garnizeH/dimdim/pkg/argon2id"
-	"github.com/garnizeH/dimdim/pkg/mailer"
-	"github.com/garnizeH/dimdim/service/user"
-	"github.com/garnizeH/dimdim/storage"
-	"github.com/garnizeH/dimdim/storage/datastore"
+	"github.com/garnizeh/go-web-boilerplate/pkg/securepass"
+	"github.com/garnizeh/go-web-boilerplate/service/user"
+	"github.com/garnizeh/go-web-boilerplate/storage"
+	"github.com/garnizeh/go-web-boilerplate/storage/datastore"
 )
 
 type Service struct {
@@ -16,7 +15,7 @@ type Service struct {
 }
 
 func New(
-	argon *argon2id.Argon2idHash,
+	argon *securepass.Securepass,
 	mailer *mailer.Mailer,
 	db *storage.DB[datastore.Queries],
 ) *Service {

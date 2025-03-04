@@ -7,10 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/garnizeH/dimdim/pkg/argon2id"
-	"github.com/garnizeH/dimdim/pkg/mailer"
-	"github.com/garnizeH/dimdim/storage"
-	"github.com/garnizeH/dimdim/storage/datastore"
+	"github.com/garnizeh/go-web-boilerplate/pkg/securepass"
+	"github.com/garnizeh/go-web-boilerplate/storage"
+	"github.com/garnizeh/go-web-boilerplate/storage/datastore"
 	"github.com/google/uuid"
 )
 
@@ -32,22 +31,22 @@ var (
 )
 
 type Service struct {
-	argon     *argon2id.Argon2idHash
-	mailer    *mailer.Mailer
-	db        *storage.DB[datastore.Queries]
-	userCache *sync.Map
+	securepass *securepass.Securepass
+	mailer     *mailer.Mailer
+	db         *storage.DB[datastore.Queries]
+	userCache  *sync.Map
 }
 
 func New(
-	argon *argon2id.Argon2idHash,
+	securepass *securepass.Securepass,
 	mailer *mailer.Mailer,
 	db *storage.DB[datastore.Queries],
 ) *Service {
 	return &Service{
-		argon:     argon,
-		mailer:    mailer,
-		db:        db,
-		userCache: &sync.Map{},
+		securepass: securepass,
+		mailer:     mailer,
+		db:         db,
+		userCache:  &sync.Map{},
 	}
 }
 
@@ -99,7 +98,7 @@ func (s *Service) Signin(
 		return User{}, err
 	}
 
-	if err := s.argon.Compare(user.Password, user.Salt, []byte(password)); err != nil {
+	if err := s.securepass.Compare(user.Password, user.Salt, []byte(password)); err != nil {
 		return User{}, ErrInvalidCredentials
 	}
 
@@ -122,7 +121,7 @@ func (s *Service) Signup(
 			return fmt.Errorf("failed to check for the email existence in the database: %w", err)
 		}
 
-		hashSalt, err := s.argon.GenerateHash([]byte(password), nil)
+		hashSalt, err := s.securepass.GenerateHash([]byte(password), nil)
 		if err != nil {
 			return fmt.Errorf("failed to hash the password: %w", err)
 		}
@@ -353,11 +352,11 @@ func (s *Service) ChangePassword(
 			return ErrUserNotVerified
 		}
 
-		if err := s.argon.Compare(user.Password, user.Salt, []byte(currentPassword)); err != nil {
+		if err := s.securepass.Compare(user.Password, user.Salt, []byte(currentPassword)); err != nil {
 			return ErrInvalidCredentials
 		}
 
-		hashSalt, err := s.argon.GenerateHash([]byte(newPassword), nil)
+		hashSalt, err := s.securepass.GenerateHash([]byte(newPassword), nil)
 		if err != nil {
 			return fmt.Errorf("failed to hash the password: %w", err)
 		}
@@ -405,7 +404,7 @@ func (s *Service) ChangePasswordWithToken(
 			return err
 		}
 
-		hashSalt, err := s.argon.GenerateHash([]byte(password), nil)
+		hashSalt, err := s.securepass.GenerateHash([]byte(password), nil)
 		if err != nil {
 			return fmt.Errorf("failed to hash the password: %w", err)
 		}

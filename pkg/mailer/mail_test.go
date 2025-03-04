@@ -1,0 +1,48 @@
+package mailer_test
+
+import (
+	"errors"
+	"testing"
+
+	"github.com/garnizeh/go-web-boilerplate/pkg/mailer"
+)
+
+func TestMail_SendSMTPMessage(t *testing.T) {
+	msg := mailer.Message{
+		From:        "me@here.com",
+		FromName:    "Joe",
+		To:          "you@there.com",
+		Subject:     "test",
+		Template:    "test",
+		Attachments: []string{"./testdata/mail/test.html.tmpl"},
+	}
+
+	err := mail.SendSMTPMessage(msg)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestMail_SendUsingChan(t *testing.T) {
+	msg := mailer.Message{
+		From:        "me@here.com",
+		FromName:    "Joe",
+		To:          "you@there.com",
+		Subject:     "test",
+		Template:    "test",
+		Attachments: []string{"./testdata/mail/test.html.tmpl"},
+	}
+
+	mail.Jobs <- msg
+	res := <-mail.Results
+	if res.Error != nil {
+		t.Error(errors.New("failed to send over channel"))
+	}
+
+	msg.To = "not_an_email_address"
+	mail.Jobs <- msg
+	res = <-mail.Results
+	if res.Error == nil {
+		t.Error(errors.New("no error received with invalid to address"))
+	}
+}
