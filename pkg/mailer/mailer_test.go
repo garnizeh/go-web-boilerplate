@@ -17,7 +17,7 @@ func TestMail_SendSMTPMessage(t *testing.T) {
 		Attachments: []string{"./testdata/mail/test.html.tmpl"},
 	}
 
-	err := mail.SendSMTPMessage(msg)
+	err := testMailer.SendSMTPMessage(msg)
 	if err != nil {
 		t.Error(err)
 	}
@@ -33,15 +33,15 @@ func TestMail_SendUsingChan(t *testing.T) {
 		Attachments: []string{"./testdata/mail/test.html.tmpl"},
 	}
 
-	mail.Jobs <- msg
-	res := <-mail.Results
+	testMailer.Jobs <- msg
+	res := <-testMailer.Results
 	if res.Error != nil {
 		t.Error(errors.New("failed to send over channel"))
 	}
 
 	msg.To = "not_an_email_address"
-	mail.Jobs <- msg
-	res = <-mail.Results
+	testMailer.Jobs <- msg
+	res = <-testMailer.Results
 	if res.Error == nil {
 		t.Error(errors.New("no error received with invalid to address"))
 	}

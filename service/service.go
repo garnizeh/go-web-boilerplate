@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/garnizeh/go-web-boilerplate/pkg/mailer"
 	"github.com/garnizeh/go-web-boilerplate/pkg/securepass"
 	"github.com/garnizeh/go-web-boilerplate/service/user"
 	"github.com/garnizeh/go-web-boilerplate/storage"
