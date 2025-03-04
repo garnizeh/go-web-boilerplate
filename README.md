@@ -1,11 +1,12 @@
 # go-web-boilerplate
 A simple, modern stack for building fast web applications.
 
-* Go - Backend
-* Tailwind - CSS
-* Templ - Templating
-* HTMX - Interactivity
+* Go - An open-source programming language supported by Google
 * SQLC - SQL compiled to type-safe code
+* Echo - High performance, extensible, minimalist Go web framework
+* Templ - A language for writing HTML user interfaces in Go
+* Tailwind - Rapidly build modern websites without ever leaving your HTML
+* HTMX - High power tools for HTML
 
 ## Technologies
 ### Tailwind
