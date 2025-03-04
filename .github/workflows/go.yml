@@ -27,8 +27,17 @@ jobs:
     - name: Vendor
       run: go mod vendor
 
+    - name: Vet
+      run: go vet -v ./...
+
+    - name: Install Static Check
+      run: go install honnef.co/go/tools/cmd/staticcheck@latest
+
+    - name: Static Check
+      run: staticcheck ./...
+
     - name: Test
-      run: go test -v ./...
+      run: go test -race -v -timeout 30s ./...
 
     - name: Build
       run: go build -v ./...
