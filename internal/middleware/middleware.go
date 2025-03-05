@@ -6,24 +6,22 @@ import (
 
 	"github.com/garnizeh/go-web-boilerplate/service/user"
 
-    "github.com/alexedwards/scs/v2"
-    "github.com/labstack/echo/v4"
+	"github.com/alexedwards/scs/v2"
+	"github.com/labstack/echo/v4"
 )
 
 const contextKeyEmail = "email"
 
 type SessionData struct {
 	AppName   string
-	Email     string
-	Name      string
-	ErrMsg    string
-	FlashMsg  string
+	UserEmail string
+	UserName  string
+	UserRoles []string
 	CSRFToken string
-	Fields    any
 }
 
 func (sd SessionData) SignedIn() bool {
-	return sd.Email != ""
+	return sd.UserEmail != "" && sd.UserName != ""
 }
 
 func PrepareSessionData(sessionManager *scs.SessionManager, users *user.Service, appName string) echo.MiddlewareFunc {
@@ -46,8 +44,9 @@ func PrepareSessionData(sessionManager *scs.SessionManager, users *user.Service,
 					panic(fmt.Sprintf("failed to get user with email %q: %v", email, err))
 				}
 
-				sessionData.Email = user.Email
-				sessionData.Name = user.Name
+				sessionData.UserEmail = user.Email
+				sessionData.UserName = user.Name
+				sessionData.UserRoles = user.Roles
 			}
 			tk, ok := c.Get("csc").(string)
 			if ok {

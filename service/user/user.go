@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -54,6 +55,7 @@ func New(
 type User struct {
 	Name  string
 	Email string
+	Roles []string
 }
 
 func (s *Service) GetUser(ctx context.Context, email string) (User, error) {
@@ -438,6 +440,7 @@ func (s *Service) updateCache(u datastore.User) User {
 	user := User{
 		Name:  u.Name,
 		Email: u.Email,
+		Roles: strings.Split(u.Roles, ","),
 	}
 	s.userCache.LoadOrStore(u.Email, user)
 

@@ -1,13 +1,13 @@
 -- name: CreateUser :exec
-INSERT INTO users (email, name, password, salt)
-           VALUES (?    , ?   , ?       , ?);
+INSERT INTO users (email, name, roles, password, salt)
+           VALUES (?    , ?   , ?    , ?       , ?);
 
 -- name: DeleteUser :exec
 UPDATE users SET updated_at = CAST(unixepoch('subsecond') * 1000 as int), deleted_at = CAST(unixepoch('subsecond') * 1000 AS INTEGER)
 WHERE email = ?;
 
 -- name: UpdateUser :exec
-UPDATE users SET email = ?, name = ?, updated_at = CAST(unixepoch('subsecond') * 1000 AS INTEGER)
+UPDATE users SET email = ?, name = ?, roles = ?, updated_at = CAST(unixepoch('subsecond') * 1000 AS INTEGER)
 WHERE email = ?;
 
 -- name: UpdateUserPassword :one
