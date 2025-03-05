@@ -1,0 +1,38 @@
+package viewlayout
+
+templ header(title string, isDebug bool) {
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{ title }</title>
+    <link rel="icon" type="image/png" href="/static/img/favicon.svg" sizes="16x16">
+
+    if isDebug {
+      <link rel="stylesheet" href="/static/css/style.css"/>
+      <link rel="stylesheet" href="/static/fonts/inter/inter.css"/>
+      <link rel="stylesheet" href="/static/fonts/remixicon/remixicon.css"/>
+
+      <script defer src="/static/js/htmx.js"></script>
+      <script defer src="/static/js/htmx-ext-response-targets.js"></script>
+      <script defer src="/static/js/iconify-icon.js"></script>
+    } else {
+      <link rel="stylesheet" href="/static/css/style.min.css"/>
+      <link rel="stylesheet" href="/static/fonts/inter/inter.min.css"/>
+      <link rel="stylesheet" href="/static/fonts/remixicon/remixicon.min.css"/>
+
+      <script defer src="/static/js/htmx.min.js"></script>
+      <script defer src="/static/js/htmx-ext-response-targets.min.js"></script>
+      <script defer src="/static/js/iconify-icon.min.js"></script>
+    }
+  </head>
+}
+
+templ Layout(contents templ.Component, title string, isDebug bool) {
+  <html lang="en">
+    @header(title, isDebug)
+
+    <body class="dark:bg-neutral-800 bg-neutral-100 dark:text-white">
+      @contents
+    </body>
+  </html>
+}
