@@ -66,7 +66,25 @@ func NewServer(
 	e.HideBanner = !isLocalhost
 	e.HidePort = !isLocalhost
 
+	if !isLocalhost {
+		e.Pre(middleware.HTTPSRedirect())
+
+	}
+
 	e.Use(middleware.BodyLimit("1k"))
+
+	e.Use(middleware.Recover())
+	e.Use(middleware.RequestID())
+
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
+
+	// Setup CSP protection.
+	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
+		XSSProtection:         "1; mode=block",
+		ContentTypeNosniff:    "nosniff",
+		XFrameOptions:         "SAMEORIGIN",
+		ContentSecurityPolicy: "default-src 'self'; script-src 'self'; object-src 'self';style-src 'self' img-src 'self'; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; connect-src 'self'",
+	}))
 
 	// Setup CSRF protection.
 	e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
