@@ -1,0 +1,85 @@
+package viewauth
+
+templ Signin() {
+  <section class="bg-white dark:bg-dark-2 flex flex-wrap min-h-[100vh]">
+    <div class="lg:w-1/2 lg:block hidden">
+      <div class="flex items-center flex-col h-full justify-center">
+        <img src="/static/img/auth/auth-img.png" alt="">
+      </div>
+    </div>
+    <div class="lg:w-1/2 py-8 px-6 flex flex-col justify-center">
+      <div class="lg:max-w-[464px] mx-auto w-full">
+        <div class="text-center">
+          <a href="index.html" class="mb-2.5 max-w-[290px]">
+            <img src="/static/img/banner.png" alt="">
+          </a>
+          <h4 class="mb-3">Sign In to your Account</h4>
+          <p class="mb-8 text-secondary-light text-lg">Welcome back! please enter your detail</p>
+        </div>
+
+        <form action="sign-in" method="post">
+          <div class="icon-field mb-4 relative">
+            <span class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl">
+              <iconify-icon icon="mage:email"></iconify-icon>
+            </span>
+            <input type="email" class="form-control h-[56px] ps-11 border-neutral-300 bg-neutral-50 dark:bg-dark-2 rounded-xl" name="name" id="name" placeholder="john.doe@example.com" required autocomplete="email" autofocus>
+          </div>
+
+          <div class="relative mb-5">
+            <div class="icon-field">
+              <span class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl">
+                <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+              </span>
+              <input type="password" class="form-control h-[56px] ps-11 border-neutral-300 bg-neutral-50 dark:bg-dark-2 rounded-xl" name="password" id="your-password" placeholder="secret" required>
+            </div>
+            <span class="toggle-password ri-eye-line cursor-pointer absolute end-0 top-1/2 -translate-y-1/2 me-4 text-secondary-light" data-toggle="#your-password"></span>
+          </div>
+
+          <div class="mt-7">
+            <div class="flex justify-between gap-2">
+              <div class="flex items-center">
+                <input class="form-check-input border border-neutral-300" type="checkbox" value="" id="remeber">
+                <label class="ps-2" for="remeber">Remember me </label>
+              </div>
+              <a href="forgot-password" class="text-primary-600 font-medium hover:underline">Forgot Password?</a>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary justify-center text-sm btn-sm px-3 py-4 w-full rounded-xl mt-8"> Sign In</button>
+
+          <div class="mt-8 text-center text-sm">
+            <p class="mb-0">Don't have an account? <a href="sign-up" class="text-primary-600 font-semibold hover:underline">Sign Up</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  @scriptLogin()
+}
+
+templ scriptLogin() {
+<script>
+  // ================== Password Show Hide Js Start ==========
+  function initializePasswordToggle(toggleSelector) {
+    const icon = document.getElementsByClassName(toggleSelector)[0];
+    let password = document.getElementById('your-password');
+
+    icon.addEventListener('click', function() {
+      if (password.type == "password") {
+        password.type = "text";
+        icon.classList.add("ri-eye-off-line");
+        icon.classList.remove("ri-eye-line");
+      } else {
+        password.type = "password";
+        icon.classList.add("ri-eye-line");
+        icon.classList.remove("ri-eye-off-line");
+      }
+    });
+  }
+
+  // Call the function
+  initializePasswordToggle('toggle-password');
+  // ========================= Password Show Hide Js End ===========================
+</script>
+}
