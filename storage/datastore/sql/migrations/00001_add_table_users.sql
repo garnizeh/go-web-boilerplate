@@ -3,6 +3,7 @@
 CREATE TABLE IF NOT EXISTS users (
   email          TEXT NOT NULL PRIMARY KEY,
   name           TEXT NOT NULL,
+  roles          TEXT NOT NULL,
   password       BLOB NOT NULL,
   salt           BLOB NOT NULL,
   created_at  INTEGER NOT NULL DEFAULT (unixepoch('subsecond') * 1000),

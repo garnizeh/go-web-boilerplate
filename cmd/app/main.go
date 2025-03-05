@@ -180,15 +180,7 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 		return fmt.Errorf("failed to ping the sessions database: %w", err)
 	}
 
-	const migrateSessionsDB = `
-    CREATE TABLE IF NOT EXISTS sessions (
-		token TEXT PRIMARY KEY,
-		data BLOB NOT NULL,
-		expiry REAL NOT NULL
-	);
-	CREATE INDEX IF NOT EXISTS sessions_expiry_idx ON sessions(expiry);`
-
-	if _, err = dbSessions.Exec(migrateSessionsDB); err != nil {
+	if err := storage.MigrateSessions(dbSessions); err != nil {
 		return fmt.Errorf("failed to migrate the sessions database: %w", err)
 	}
 
