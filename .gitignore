@@ -30,3 +30,6 @@ go.work.sum
 # air files
 tmp/
 bin/
+
+# dev files
+cmd/dev/

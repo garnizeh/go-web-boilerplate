@@ -2,6 +2,8 @@ package mailer_test
 
 import (
 	"context"
+	"embed"
+	"io/fs"
 	"log"
 	"os"
 	"testing"
@@ -12,14 +14,9 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-var testMailer = mailer.New(mailer.Config{
-	Domain:      "localhost",
-	Templates:   "./testdata/mail",
-	FromAddress: "me@here.com",
-	FromName:    "Joe",
-	JobsSize:    1,
-	ResultsSize: 1,
-})
+//go:embed testdata/*
+var testdata embed.FS
+var testMailer *mailer.Mailer
 
 func TestMain(m *testing.M) {
 	ctx := context.Background()
@@ -50,8 +47,21 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	testMailer.Host = host
-	testMailer.Port = port.Int()
+	templateFS, err := fs.Sub(testdata, "testdata")
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	testMailer = mailer.New(mailer.Config{
+		TemplatesFS: templateFS,
+		Host:        host,
+		Port:        port.Int(),
+		FromAddress: "me@here.com",
+		FromName:    "Joe",
+		JobsSize:    1,
+		ResultsSize: 1,
+	})
 
 	time.Sleep(2 * time.Second)
 

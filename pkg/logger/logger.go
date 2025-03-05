@@ -13,24 +13,19 @@ import (
 	"log/slog"
 )
 
-// TraceIDFn represents a function that can return the trace id from
-// the specified context.
-type TraceIDFn func(ctx context.Context) string
-
 // Logger represents a logger for logging information.
 type Logger struct {
-	handler   slog.Handler
-	traceIDFn TraceIDFn
+	handler slog.Handler
 }
 
 // New constructs a new log for application use.
-func New(w io.Writer, minLevel Level, serviceName string, traceIDFn TraceIDFn) *Logger {
-	return new(w, minLevel, serviceName, traceIDFn, Events{})
+func New(w io.Writer, minLevel Level, serviceName string) *Logger {
+	return new(w, minLevel, serviceName, Events{})
 }
 
 // NewWithEvents constructs a new log for application use with events.
-func NewWithEvents(w io.Writer, minLevel Level, serviceName string, traceIDFn TraceIDFn, events Events) *Logger {
-	return new(w, minLevel, serviceName, traceIDFn, events)
+func NewWithEvents(w io.Writer, minLevel Level, serviceName string, events Events) *Logger {
+	return new(w, minLevel, serviceName, events)
 }
 
 // NewWithHandler returns a new log for application use with the underlying
@@ -96,18 +91,34 @@ func (log *Logger) write(ctx context.Context, level Level, caller int, msg strin
 
 	r := slog.NewRecord(time.Now(), slogLevel, msg, pcs[0])
 
-	if log.traceIDFn != nil {
-		args = append(args, "trace_id", log.traceIDFn(ctx))
-	}
+	args = append(args, "trace_id", log.getTraceID(ctx))
 	r.Add(args...)
 
 	log.handler.Handle(ctx, r)
 }
 
-func new(w io.Writer, minLevel Level, serviceName string, traceIDFn TraceIDFn, events Events) *Logger {
+type ctxKey int
 
-	// Convert the file name to just the name.ext when this key/value will
-	// be logged.
+const key ctxKey = 1
+
+// Values represent state for each request.
+type Values struct {
+	TraceID    string
+	Now        time.Time
+	StatusCode int
+}
+
+func (log *Logger) getTraceID(ctx context.Context) string {
+	v, ok := ctx.Value(key).(*Values)
+	if !ok {
+		return "00000000-0000-0000-0000-000000000000"
+	}
+
+	return v.TraceID
+}
+
+func new(w io.Writer, minLevel Level, serviceName string, events Events) *Logger {
+	// Convert the file name to just the name.ext when this key/value will be logged.
 	f := func(groups []string, a slog.Attr) slog.Attr {
 		if a.Key == slog.SourceKey {
 			if source, ok := a.Value.Any().(*slog.Source); ok {
@@ -120,10 +131,14 @@ func new(w io.Writer, minLevel Level, serviceName string, traceIDFn TraceIDFn, e
 	}
 
 	// Construct the slog JSON handler for use.
-	handler := slog.Handler(slog.NewJSONHandler(w, &slog.HandlerOptions{AddSource: true, Level: slog.Level(minLevel), ReplaceAttr: f}))
+	opts := slog.HandlerOptions{
+		AddSource: true,
+		Level: slog.Level(minLevel),
+		ReplaceAttr: f,
+	}
+	handler := slog.Handler(slog.NewJSONHandler(w, &opts))
 
-	// If events are to be processed, wrap the JSON handler around the custom
-	// log handler.
+	// If events are to be processed, wrap the JSON handler around the custom log handler.
 	if events.Debug != nil || events.Info != nil || events.Warn != nil || events.Error != nil {
 		handler = newLogHandler(handler, events)
 	}
@@ -136,8 +151,5 @@ func new(w io.Writer, minLevel Level, serviceName string, traceIDFn TraceIDFn, e
 	// Add those attributes and capture the final handler.
 	handler = handler.WithAttrs(attrs)
 
-	return &Logger{
-		handler:   handler,
-		traceIDFn: traceIDFn,
-	}
+	return &Logger{handler: handler}
 }

@@ -14,7 +14,7 @@ func TestMail_SendSMTPMessage(t *testing.T) {
 		To:          "you@there.com",
 		Subject:     "test",
 		Template:    "test",
-		Attachments: []string{"./testdata/mail/test.html.tmpl"},
+		Attachments: []string{"testdata/test.html.tmpl"},
 	}
 
 	err := testMailer.SendSMTPMessage(msg)
@@ -30,7 +30,7 @@ func TestMail_SendUsingChan(t *testing.T) {
 		To:          "you@there.com",
 		Subject:     "test",
 		Template:    "test",
-		Attachments: []string{"./testdata/mail/test.html.tmpl"},
+		Attachments: []string{"testdata/test.html.tmpl"},
 	}
 
 	testMailer.Jobs <- msg
