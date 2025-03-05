@@ -7,7 +7,7 @@ import (
 	"github.com/garnizeh/go-web-boilerplate/pkg/securepass"
 )
 
-func TestArgon2IDHashGenerateHash(t *testing.T) {
+func TestSecurePassHashGenerateHash(t *testing.T) {
 	a := securepass.NewWithDefault()
 
 	tests := []struct {
@@ -59,7 +59,7 @@ func TestArgon2IDHashGenerateHash(t *testing.T) {
 	}
 }
 
-func TestArgon2IDHashCompare(t *testing.T) {
+func TestSecurePassHashCompare(t *testing.T) {
 	a := securepass.NewWithDefault()
 	h, err := a.GenerateHash([]byte("password"), nil)
 	if err != nil {

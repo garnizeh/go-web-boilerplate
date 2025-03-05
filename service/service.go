@@ -16,11 +16,11 @@ type Service struct {
 }
 
 func New(
-	argon *securepass.Securepass,
+	securepass *securepass.Securepass,
 	mailer *mailer.Mailer,
 	db *storage.DB[datastore.Queries],
 ) *Service {
-	user := user.New(argon, mailer, db)
+	user := user.New(securepass, mailer, db)
 
 	return &Service{
 		user: user,

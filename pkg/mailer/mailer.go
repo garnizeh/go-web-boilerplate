@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"time"
 
 	"github.com/vanng822/go-premailer/premailer"
@@ -28,8 +29,7 @@ type Result struct {
 }
 
 type Config struct {
-	Domain      string
-	Templates   string
+	TemplatesFS fs.FS
 	Host        string
 	Port        int
 	Username    string
@@ -44,8 +44,7 @@ type Config struct {
 
 // Mailer holds the information necessary to connect to an SMTP server
 type Mailer struct {
-	Domain      string
-	Templates   string
+	TemplatesFS fs.FS
 	Host        string
 	Port        int
 	Username    string
@@ -60,8 +59,7 @@ type Mailer struct {
 
 func New(cfg Config) *Mailer {
 	return &Mailer{
-		Domain:      cfg.Domain,
-		Templates:   cfg.Templates,
+		TemplatesFS: cfg.TemplatesFS,
 		Host:        cfg.Host,
 		Port:        cfg.Port,
 		Username:    cfg.Username,
@@ -152,9 +150,8 @@ func (m *Mailer) getEncryption(e string) mail.Encryption {
 
 // buildHTMLMessage creates the html version of the message
 func (m *Mailer) buildHTMLMessage(msg Message) (string, error) {
-	templateToRender := fmt.Sprintf("%s/%s.html.tmpl", m.Templates, msg.Template)
-
-	t, err := template.New("email-html").ParseFiles(templateToRender)
+	templateToRender := fmt.Sprintf("%s.html.tmpl", msg.Template)
+	t, err := template.New("email-html").ParseFS(m.TemplatesFS, templateToRender)
 	if err != nil {
 		return "", err
 	}
@@ -175,9 +172,8 @@ func (m *Mailer) buildHTMLMessage(msg Message) (string, error) {
 
 // buildPlainTextMessage creates the plaintext version of the message
 func (m *Mailer) buildPlainTextMessage(msg Message) (string, error) {
-	templateToRender := fmt.Sprintf("%s/%s.plain.tmpl", m.Templates, msg.Template)
-
-	t, err := template.New("email-html").ParseFiles(templateToRender)
+	templateToRender := fmt.Sprintf("%s.plain.tmpl", msg.Template)
+	t, err := template.New("email-html").ParseFS(m.TemplatesFS, templateToRender)
 	if err != nil {
 		return "", err
 	}

@@ -1,4 +1,5 @@
-APP_NAME ?= app
+APP_NAME ?= boilerplate
+BUILD := `git rev-parse HEAD`
 
 # ==============================================================================
 # Install external tools
@@ -91,8 +92,11 @@ dependencies:
 	go mod tidy
 	go mod vendor
 
-build: vet staticcheck dependencies tailwind-build templ-generate test
-	go build -ldflags="-s -w" -o ./bin/$(APP_NAME) ./cmd/app/main.go
+build:
+	go build -ldflags='-s -w -X "main.build=$(BUILD)" -X "main.appName=$(APP_NAME)"' -o ./bin/$(APP_NAME) ./cmd/app/main.go
+
+build-all: vet staticcheck dependencies tailwind-build templ-generate test
+	go build -ldflags='-s -w -X "main.build=$(BUILD)" -X "main.appName=$(APP_NAME)"' -o ./bin/$(APP_NAME) ./cmd/app/main.go
 
 # ==============================================================================
 # Metrics and Tracing
