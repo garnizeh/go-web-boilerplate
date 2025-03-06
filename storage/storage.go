@@ -65,15 +65,17 @@ func NewDB[Queries any](dsn string, migrations embed.FS, factory func(tx DBTX) *
 
 	goose.SetBaseFS(migrations)
 	if err := goose.SetDialect("sqlite"); err != nil {
-		db.Close()
+		err = errors.Join(err, db.Close())
 		return nil, err
 	}
 
 	if err := goose.Up(db, "sql/migrations"); err != nil {
-		db.Close()
+		err = errors.Join(err, db.Close())
 		return nil, err
 	}
-	db.Close()
+	if err := db.Close(); err != nil {
+		return nil, err
+	}
 
 	wrdb, err := sql.Open("sqlite3", fmt.Sprintf(writeDSN, dsn))
 	if err != nil {
@@ -83,7 +85,7 @@ func NewDB[Queries any](dsn string, migrations embed.FS, factory func(tx DBTX) *
 
 	rddb, err := sql.Open("sqlite3", fmt.Sprintf(readDSN, dsn))
 	if err != nil {
-		wrdb.Close()
+		err = errors.Join(err, wrdb.Close())
 		return nil, err
 	}
 

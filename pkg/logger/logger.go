@@ -94,7 +94,9 @@ func (log *Logger) write(ctx context.Context, level Level, caller int, msg strin
 	args = append(args, "trace_id", log.getTraceID(ctx))
 	r.Add(args...)
 
-	log.handler.Handle(ctx, r)
+	if err := log.handler.Handle(ctx, r); err != nil {
+		panic(err)
+	}
 }
 
 type ctxKey int
@@ -132,8 +134,8 @@ func new(w io.Writer, minLevel Level, serviceName string, events Events) *Logger
 
 	// Construct the slog JSON handler for use.
 	opts := slog.HandlerOptions{
-		AddSource: true,
-		Level: slog.Level(minLevel),
+		AddSource:   true,
+		Level:       slog.Level(minLevel),
 		ReplaceAttr: f,
 	}
 	handler := slog.Handler(slog.NewJSONHandler(w, &opts))

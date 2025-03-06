@@ -1,0 +1,52 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ "main" ]
+
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: "go.mod"
+
+    - name: Update Dependencies
+      run: make dependencies
+
+    - name: Check Dependencies Changes
+      run: if [ -n "$(git status --porcelain)" ]; then git status --porcelain && exit 1; fi
+
+    - name: Install Tools
+      run: make install-cicd-tools
+
+    - name: Check code
+      run: make check-cicd
+
+    - name: Test
+      run: go test -race -v -timeout 30s ./...
+
+    - name: Build
+      run: make build
+
+  release:
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main'
+
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: echo building app...
