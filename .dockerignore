@@ -1,0 +1,12 @@
+.github/
+.vscode/
+bin/
+docker/
+tmp/
+vendor/
+.air.toml
+.dockerignore
+.gitignore
+LICENSE
+sqlc.yaml
+tailwind.config.js
