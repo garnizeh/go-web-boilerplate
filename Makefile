@@ -89,7 +89,7 @@ staticcheck:
 
 .PHONY: sec
 sec:
-	gosec ./...
+	gosec -exclude-generated ./...
 
 .PHONY: vuln
 vuln:
@@ -102,16 +102,14 @@ test:
 # ==============================================================================
 # Building views
 
-.PHONY: tailwind-build
-tailwind-build:
-	tailwindcss -i ./embeded/static/css/_input.css -o ./embeded/static/css/style.min.css --minify
-
 .PHONY: templ-generate
 templ-generate:
 	templ generate
 
 # ==============================================================================
 # Building app
+
+all: dependencies templ-generate check-cicd test build
 
 dev:
 	go build -o ./tmp/main ./cmd/main.go && air
@@ -122,9 +120,6 @@ dependencies:
 	go mod vendor
 
 build:
-	go build -ldflags='-s -w -X "main.build=$(BUILD)" -X "main.appName=$(APP_NAME)"' -o ./bin/$(APP_NAME) ./cmd/app/main.go
-
-build-all: vet staticcheck dependencies tailwind-build templ-generate test
 	go build -ldflags='-s -w -X "main.build=$(BUILD)" -X "main.appName=$(APP_NAME)"' -o ./bin/$(APP_NAME) ./cmd/app/main.go
 
 # ==============================================================================
