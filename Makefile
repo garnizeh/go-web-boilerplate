@@ -1,5 +1,5 @@
 APP_NAME ?= boilerplate
-BUILD := `git rev-parse HEAD`
+BUILD := $(shell git rev-parse HEAD)
 GOENVPATH = $(shell go env GOPATH)
 
 # ==============================================================================
@@ -122,6 +122,9 @@ dependencies:
 build:
 	go build -ldflags='-s -w -X "main.build=$(BUILD)" -X "main.appName=$(APP_NAME)"' -o ./bin/$(APP_NAME) ./cmd/app/main.go
 
+build-prod:
+	go build -ldflags='-s -w -X "main.build=$(BUILD)" -X "main.appName=$(APP_NAME)" -extldflags "-static"' -o app ./cmd/app/main.go
+
 # ==============================================================================
 # Metrics and Tracing
 
@@ -140,22 +143,7 @@ smtp:
 # ==============================================================================
 # Docker support
 
-.PHONY: docker-build
+.PHONY: docker-prod
 docker-build:
-	docker-compose -f ./dev/docker-compose.yml build
-
-.PHONY: docker-up
-docker-up:
-	docker-compose -f ./dev/docker-compose.yml up
-
-.PHONY: docker-dev
-docker-dev:
-	docker-compose -f ./dev/docker-compose.yml -f ./dev/docker-compose.dev.yml up
-
-.PHONY: docker-down
-docker-down:
-	docker-compose -f ./dev/docker-compose.yml down
-
-.PHONY: docker-clean
-docker-clean:
-	docker-compose -f ./dev/docker-compose.yml down -v --rmi all
+	docker build -f ./docker/Dockerfile.prod -t $(APP_NAME):test .
+	docker run --rm -p 3000:3000 -p 3010:3010 $(APP_NAME):test

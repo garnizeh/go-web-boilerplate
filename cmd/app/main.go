@@ -86,10 +86,10 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 			Host string `conf:"default:0.0.0.0:3010"`
 		}
 		DBApp struct {
-			DSN string `conf:"default:tmp/data/app.db"`
+			DSN string `conf:"default:tmp/app.db"`
 		}
 		DBSessions struct {
-			DSN string `conf:"default:tmp/data/sessions.db"`
+			DSN string `conf:"default:tmp/sessions.db"`
 		}
 		Mailer struct {
 			Host        string `conf:"default:localhost"`
