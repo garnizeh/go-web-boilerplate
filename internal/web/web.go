@@ -110,7 +110,7 @@ func NewServer(
 	}))
 
 	// Setup CSP
-	e.Use(mw.CSP)
+	e.Use(mw.PrepareCSP(isLocalhost))
 
 	// Setup session management.
 	sessionManager := cfg.SessionManager.SessionManager()

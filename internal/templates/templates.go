@@ -21,5 +21,6 @@ func New(title string, isDebug bool) *Engine {
 func (e *Engine) Render(contents templ.Component, c echo.Context) error {
 	ctx := c.Request().Context()
 	w := c.Response().Writer
+
 	return viewlayout.Layout(contents, e.title, e.isDebug).Render(ctx, w)
 }
