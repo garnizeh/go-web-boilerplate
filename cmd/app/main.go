@@ -321,7 +321,7 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 		log.Info(ctx, "shutdown", "status", "stopping web server")
 
 		if err := app.Shutdown(ctx); err != nil {
-			app.Close()
+			err := errors.Join(err, app.Close())
 			return fmt.Errorf("failed to stop the server gracefully: %w", err)
 		}
 	}
