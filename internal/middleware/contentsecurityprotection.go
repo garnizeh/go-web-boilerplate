@@ -1,55 +1,35 @@
 package middleware
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 
 	"github.com/labstack/echo/v4"
 )
 
-var nonceKey = "nonces"
+func PrepareCSP(isDebug bool) echo.MiddlewareFunc {
+	//var csp string
+	csp := "default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; script-src-elem 'self' %s; script-src-attr 'self'; object-src 'self'; style-src 'self'; style-src-elem 'self' %s; style-src-attr 'self'; img-src 'self'; font-src 'self'; connect-src 'self' %s; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; child-src 'self';"
+	if isDebug {
+		signinJS := "'sha256-CI/zle8B36PcsnRpJFDskeKWwPR91xYlzFCXfK2ri2Y='"
+		script_src_elem := signinJS
 
-type Nonces struct {
-	Htmx            string
-	ResponseTargets string
-	Tw              string
-	HtmxCSSHash     string
-}
+		iconifyCSS := "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=' 'sha256-G2K9ENiXaTIc4pmzLEOJB962ySgP2gMolWCZ6HJpU4I=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=' 'sha256-G2K9ENiXaTIc4pmzLEOJB962ySgP2gMolWCZ6HJpU4I='"
+		htmxCSS := "'sha256-2Zmme+3cWvmG8lapM3WvEkAyYA3671LVoN107gkAU4g='"
+		style_src_elem := iconifyCSS + " " + htmxCSS
 
-func generateRandomString(length int) string {
-	bytes := make([]byte, length)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return ""
+		iconifySrc := "https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com https://api.iconify.design https://api.simplesvg.com https://api.unisvg.com"
+		connect_src := iconifySrc
+
+		csp = fmt.Sprintf(csp, script_src_elem, style_src_elem, connect_src)
 	}
-	return hex.EncodeToString(bytes)
-}
+	//const cspBase = "default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; script-src-elem 'self' 'sha256-CI/zle8B36PcsnRpJFDskeKWwPR91xYlzFCXfK2ri2Y='; script-src-attr 'self'; object-src 'self'; style-src 'self'; style-src-elem 'self' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=' 'sha256-G2K9ENiXaTIc4pmzLEOJB962ySgP2gMolWCZ6HJpU4I=' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=' 'sha256-G2K9ENiXaTIc4pmzLEOJB962ySgP2gMolWCZ6HJpU4I=' 'sha256-2Zmme+3cWvmG8lapM3WvEkAyYA3671LVoN107gkAU4g='; style-src-attr 'self'; img-src 'self'; font-src 'self'; connect-src 'self' https://api.iconify.design; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; child-src 'self';"
 
-func CSP(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		// Create a new Nonces struct for every request when here.
-		// Move to outside the handler to use the same nonces in all responses
-		nonceSet := Nonces{
-			Htmx:            generateRandomString(16),
-			ResponseTargets: generateRandomString(16),
-			Tw:              generateRandomString(16),
-			HtmxCSSHash:     "sha256-pgn1TCGZX6O77zDvy0oTODMOxemn0oj0LeCnQTRj7Kg=",
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// Insert the hashes into the content security policy header
+			c.Response().Header().Set(echo.HeaderContentSecurityPolicy, csp)
+
+			return next(c)
 		}
-
-		// Set nonces in context
-		c.Set(nonceKey, nonceSet)
-
-		//ContentSecurityPolicy: "default-src 'self'; script-src 'self'; object-src 'self'; style-src 'self'; img-src 'self'; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; connect-src 'self'",
-		// Insert the nonces into the content security policy header
-		csp := fmt.Sprintf("default-src 'self'; script-src 'nonce-%s' 'nonce-%s' ; style-src 'nonce-%s' '%s';",
-			nonceSet.Htmx,
-			nonceSet.ResponseTargets,
-			nonceSet.Tw,
-			nonceSet.HtmxCSSHash,
-		)
-		c.Response().Header().Set(echo.HeaderContentSecurityPolicy, csp)
-
-		return next(c)
 	}
 }
