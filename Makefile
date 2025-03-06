@@ -1,14 +1,29 @@
 APP_NAME ?= boilerplate
 BUILD := `git rev-parse HEAD`
+GOENVPATH = $(shell go env GOPATH)
 
 # ==============================================================================
 # Install external tools
 
-install-tools: install-staticcheck install-migrate install-sqlc install-expvarmon install-MailHog install-tailwindcss
+install-cicd-tools: install-staticcheck install-golangci install-gosec install-govuln
+
+install-tools: install-staticcheck install-golangci install-gosec install-govuln install-migrate install-sqlc install-expvarmon install-mailhog install-tailwindcss
 
 .PHONY: install-staticcheck
 install-staticcheck:
 	go install honnef.co/go/tools/cmd/staticcheck@latest
+
+.PHONY: install-golangci
+install-golangci:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(GOENVPATH)/bin v1.64.6
+
+.PHONY: install-gosec
+install-gosec:
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+.PHONY: install-govuln
+install-govuln:
+	go install golang.org/x/vuln/cmd/govulncheck@latest
 
 .PHONY: install-migrate
 install-migrate:
@@ -58,6 +73,12 @@ git-clean:
 # ==============================================================================
 # Checking source code
 
+check-cicd: lint vet staticcheck sec vuln
+
+.PHONY: lint
+lint:
+	golangci-lint run --modules-download-mode vendor --timeout=10m -E gosec -E prealloc -E misspell -E unconvert -E goimports -E sqlclosecheck -E bodyclose -E noctx -E govet -E gosimple -E gofmt -E unparam
+
 .PHONY: vet
 vet:
 	go vet ./...
@@ -65,6 +86,14 @@ vet:
 .PHONY: staticcheck
 staticcheck:
 	staticcheck ./...
+
+.PHONY: sec
+sec:
+	gosec ./...
+
+.PHONY: vuln
+vuln:
+	@echo govulncheck ./...
 
 .PHONY: test
 test:

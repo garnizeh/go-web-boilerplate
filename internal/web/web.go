@@ -6,8 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/garnizeh/go-web-boilerplate/embeded"
+	"github.com/garnizeh/go-web-boilerplate/embedded"
+	hauth "github.com/garnizeh/go-web-boilerplate/internal/handlers/auth"
 	mw "github.com/garnizeh/go-web-boilerplate/internal/middleware"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates"
 	"github.com/garnizeh/go-web-boilerplate/pkg/sessionmanager"
 	"github.com/garnizeh/go-web-boilerplate/service"
 
@@ -78,12 +80,11 @@ func NewServer(
 
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 
-	// Setup CSP protection.
+	// Setup XSS protection.
 	e.Use(middleware.SecureWithConfig(middleware.SecureConfig{
-		XSSProtection:         "1; mode=block",
-		ContentTypeNosniff:    "nosniff",
-		XFrameOptions:         "SAMEORIGIN",
-		ContentSecurityPolicy: "default-src 'self'; script-src 'self'; object-src 'self';style-src 'self' img-src 'self'; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; connect-src 'self'",
+		XSSProtection:      "1; mode=block",
+		ContentTypeNosniff: "nosniff",
+		XFrameOptions:      "SAMEORIGIN",
 	}))
 
 	// Setup CSRF protection.
@@ -108,15 +109,16 @@ func NewServer(
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 
+	// Setup CSP
+	e.Use(mw.CSP)
+
 	// Setup session management.
 	sessionManager := cfg.SessionManager.SessionManager()
 	e.Use(session.LoadAndSave(sessionManager))
 	e.Use(mw.PrepareSessionData(sessionManager, service.User(), cfg.AppName))
 
-	// Setup handler.
-	// domain := domain.Domain(cfg.FullDomain())
-	// handlers := NewHandler(domain, sessionManager, service)
-	// handlers.LoadRoutes(e, templates)
+	// Mount the router
+	mountRouter(e, cfg.AppName, isLocalhost)
 
 	// Setup static page serving.
 	staticG := e.Group("static")
@@ -135,7 +137,25 @@ func NewServer(
 			return next(c)
 		}
 	})
-	staticG.StaticFS("/", embeded.Static())
+	staticG.StaticFS("/", embedded.Static())
 
 	return e
+}
+
+func mountRouter(e *echo.Echo, appName string, isDebug bool) {
+	// Index
+	e.GET("/", func(c echo.Context) error {
+		return c.Redirect(http.StatusSeeOther, "/auth/signin")
+	})
+
+	template := templates.New(appName, isDebug)
+
+	// Auth group
+	authG := e.Group("auth")
+	mountAuth(authG, template)
+
+}
+
+func mountAuth(g *echo.Group, t *templates.Engine) {
+	g.GET("/signin", hauth.GetSignin(t))
 }

@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/garnizeh/go-web-boilerplate/embeded"
+	embedded "github.com/garnizeh/go-web-boilerplate/embedded"
 	"github.com/garnizeh/go-web-boilerplate/internal/debug"
 	"github.com/garnizeh/go-web-boilerplate/internal/web"
 	"github.com/garnizeh/go-web-boilerplate/pkg/logger"
@@ -214,7 +214,7 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 	}
 
 	mailer := mailer.New(mailer.Config{
-		TemplatesFS: embeded.Mails(),
+		TemplatesFS: embedded.Mails(),
 		Host:        cfg.Mailer.Host,
 		Port:        cfg.Mailer.Port,
 		Username:    cfg.Mailer.Username,
@@ -248,9 +248,24 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 	go func() {
 		log.Info(ctx, "startup", "status", "debug router started")
 
+		mux, err := debug.Mux()
+		if err != nil {
+			panic(fmt.Sprintf("failed to create the debug mux: %v", err))
+		}
+
 		expvar.NewString("build").Set(build)
-		if err := http.ListenAndServe(cfg.Debug.Host, debug.Mux()); err != nil {
-			log.Error(ctx, "shutdown", "status", "debug router closed", "error", err)
+
+		server := http.Server{
+			Addr:              cfg.Debug.Host,
+			Handler:           mux,
+			ReadHeaderTimeout: 3 * time.Second,
+			ReadTimeout:       5 * time.Second,
+			WriteTimeout:      10 * time.Second,
+			IdleTimeout:       120 * time.Second,
+		}
+
+		if err := server.ListenAndServe(); err != nil {
+			log.Error(ctx, "shutdown", "status", "debug server closed", "error", err)
 		}
 	}()
 

@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"errors"
+	"math"
 	"runtime"
 
 	"golang.org/x/crypto/argon2"
@@ -53,7 +54,11 @@ func New(time, saltLen uint32, memory uint32, threads uint8, keyLen uint32) *Sec
 // NewWithDefault returns an Securepass with default config.
 func NewWithDefault() *Securepass {
 	// We want to use at most half the cpus available and no more than 4.
-	threads := min(4, max(1, uint8(runtime.NumCPU()/2)))
+	threads := uint8(1)
+	cpus := runtime.NumCPU() / 2
+	if cpus > 0 && cpus < math.MaxUint8 {
+		threads = uint8(cpus)
+	}
 
 	return New(4, 32, 64*1024, threads, 256)
 }

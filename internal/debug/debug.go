@@ -13,7 +13,7 @@ import (
 // bypassing the use of the DefaultServerMux. Using the DefaultServerMux would
 // be a security risk since a dependency could inject a handler into our service
 // without us knowing it.
-func Mux() *http.ServeMux {
+func Mux() (*http.ServeMux, error) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
@@ -23,7 +23,9 @@ func Mux() *http.ServeMux {
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	mux.Handle("/debug/vars/", expvar.Handler())
 
-	statsviz.Register(mux)
+	if err := statsviz.Register(mux); err != nil {
+		return nil, err
+	}
 
-	return mux
+	return mux, nil
 }
