@@ -65,8 +65,7 @@ func PostSignin(engine *templates.Engine) echo.HandlerFunc {
 		if err := req.validate(); err != nil {
 			token := c.Get("sec").(string)
 			c.Response().WriteHeader(http.StatusUnauthorized)
-			auth.SigninError(token).Render(c.Request().Context(), c.Response().Writer)
-			return nil
+			return auth.SigninError(token).Render(c.Request().Context(), c.Response().Writer)
 		}
 
 		return c.JSON(200, req)
