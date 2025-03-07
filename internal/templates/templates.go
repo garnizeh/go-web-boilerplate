@@ -18,7 +18,7 @@ func New(title string, isDebug bool) *Engine {
 	}
 }
 
-func (e *Engine) Render(contents templ.Component, c echo.Context) error {
+func (e *Engine) Render(c echo.Context, contents templ.Component) error {
 	ctx := c.Request().Context()
 	w := c.Response().Writer
 

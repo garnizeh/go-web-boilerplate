@@ -11,6 +11,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pressly/goose/v3 v3.24.1
 	github.com/spazzymoto/echo-scs-session v1.0.0
 	github.com/testcontainers/testcontainers-go v0.35.0
@@ -25,6 +26,7 @@ require (
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/PuerkitoBio/goquery v1.10.1 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
+	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/containerd/containerd v1.7.18 // indirect
 	github.com/containerd/log v0.1.0 // indirect
