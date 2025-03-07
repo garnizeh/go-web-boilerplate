@@ -12,7 +12,6 @@ import (
 	"github.com/garnizeh/go-web-boilerplate/internal/templates"
 	"github.com/garnizeh/go-web-boilerplate/pkg/sessionmanager"
 	"github.com/garnizeh/go-web-boilerplate/service"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	session "github.com/spazzymoto/echo-scs-session"
@@ -93,8 +92,8 @@ func NewServer(
 		CookieMaxAge:   int(1 * time.Hour / time.Second),
 		CookieHTTPOnly: true,
 		CookieSecure:   true,
-		CookieName:     "_csc",
-		ContextKey:     "csc",
+		CookieName:     "_sec",
+		ContextKey:     "sec",
 		CookiePath:     "/",
 		CookieSameSite: http.SameSiteStrictMode,
 		Skipper: func(c echo.Context) bool {
@@ -148,14 +147,16 @@ func mountRouter(e *echo.Echo, appName string, isDebug bool) {
 		return c.Redirect(http.StatusSeeOther, "/auth/signin")
 	})
 
-	template := templates.New(appName, isDebug)
+	// Setup templates engine
+	engine := templates.New(appName, isDebug)
 
 	// Auth group
 	authG := e.Group("auth")
-	mountAuth(authG, template)
+	mountAuth(authG, engine)
 
 }
 
 func mountAuth(g *echo.Group, t *templates.Engine) {
 	g.GET("/signin", hauth.GetSignin(t))
+	g.POST("/signin", hauth.PostSignin(t))
 }
