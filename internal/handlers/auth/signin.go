@@ -62,6 +62,10 @@ func PostSignin(engine *templates.Engine) echo.HandlerFunc {
 			return err
 		}
 
+		if req.isRemember() {
+			req.Remember = "true"
+		}
+
 		if err := req.validate(); err != nil {
 			token := c.Get("sec").(string)
 			c.Response().WriteHeader(http.StatusUnauthorized)
