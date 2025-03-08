@@ -23,11 +23,11 @@ jobs:
     - name: Update Dependencies
       run: make dependencies
 
+    - name: Compile Templates
+      run: make templ-generate
+
     - name: Check Dependencies Changes
       run: if [ -n "$(git status --porcelain)" ]; then git status --porcelain && exit 1; fi
-
-    - name: Install Tools
-      run: make install-cicd-tools
 
     - name: Check code
       run: make check-cicd
