@@ -7,7 +7,7 @@ import (
 	"github.com/garnizeh/go-web-boilerplate/pkg/mailer"
 )
 
-func TestMail_SendSMTPMessage(t *testing.T) {
+func TestMailSendSMTPMessage(t *testing.T) {
 	msg := mailer.Message{
 		From:        "me@here.com",
 		FromName:    "Joe",
@@ -23,7 +23,7 @@ func TestMail_SendSMTPMessage(t *testing.T) {
 	}
 }
 
-func TestMail_SendUsingChan(t *testing.T) {
+func TestMailSendUsingChan(t *testing.T) {
 	msg := mailer.Message{
 		From:        "me@here.com",
 		FromName:    "Joe",

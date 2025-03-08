@@ -7,14 +7,20 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 )
 
-func SanitizeString(input string) string {
-	return bluemonday.StrictPolicy().Sanitize(strings.TrimSpace(input))
+func SanitizeString(str string) string {
+	str = strings.TrimSpace(str)
+	return bluemonday.StrictPolicy().Sanitize(str)
 }
 
-func IsValidEmail(input string) bool {
-	if _, err := mail.ParseAddress(input); err != nil {
+func IsValidEmail(email string) bool {
+	if _, err := mail.ParseAddress(email); err != nil {
 		return false
 	}
 
-	return true
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return false
+	}
+
+	return strings.Contains(parts[1], ".")
 }
