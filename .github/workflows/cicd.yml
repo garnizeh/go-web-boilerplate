@@ -33,7 +33,10 @@ jobs:
       run: make check-cicd
 
     - name: Test
-      run: go test -race -v -timeout 30s ./...
+      run: go test -race -v -timeout 30s ./... -coverprofile cover.out
+
+    - name: Show Test Coverage
+      run: go tool cover -func cover.out
 
     - name: Build
       run: make build
