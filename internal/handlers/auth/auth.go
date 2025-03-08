@@ -2,24 +2,32 @@ package auth
 
 import (
 	"github.com/alexedwards/scs/v2"
+	"github.com/garnizeh/go-web-boilerplate/internal/middleware"
 	"github.com/garnizeh/go-web-boilerplate/internal/templates"
-	"github.com/garnizeh/go-web-boilerplate/service/user"
+	"github.com/garnizeh/go-web-boilerplate/pkg/logger"
+	"github.com/garnizeh/go-web-boilerplate/service"
+	"github.com/labstack/echo/v4"
 )
 
-type Auth struct {
-	sessionManager *scs.SessionManager
+type auth struct {
 	engine         *templates.Engine
-	userService    *user.Service
+	service        *service.Service
+	sessionManager *scs.SessionManager
 }
 
-func New(
+func Mount(
+	log *logger.Logger,
+	g *echo.Group,
 	sessionManager *scs.SessionManager,
 	engine *templates.Engine,
-	userService *user.Service,
-) *Auth {
-	return &Auth{
-		sessionManager: sessionManager,
+	service *service.Service,
+) {
+	a := &auth{
 		engine:         engine,
-		userService:    userService,
+		service:        service,
+		sessionManager: sessionManager,
 	}
+
+	g.GET("/signin", a.getSignin, middleware.IsSignedOutMiddleware)
+	g.POST("/signin", a.postSignin, middleware.IsSignedOutMiddleware)
 }
