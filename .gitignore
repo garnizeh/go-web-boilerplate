@@ -26,6 +26,7 @@ go.work.sum
 
 # vscode files
 .vscode/
+cmd/app/__debug*
 
 # air files
 tmp/

@@ -9,4 +9,4 @@ vendor/
 .gitignore
 LICENSE
 sqlc.yaml
-tailwind.config.js
+cmd/app/__debug*
