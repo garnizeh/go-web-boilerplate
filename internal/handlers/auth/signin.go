@@ -51,9 +51,9 @@ func (s *signinRequest) validate() error {
 	return nil
 }
 
-func (s *signinRequest) isRemember() bool {
-	return s.Remember == "true"
-}
+// func (s *signinRequest) isRemember() bool {
+// 	return s.Remember == "true"
+// }
 
 func PostSignin(engine *templates.Engine) echo.HandlerFunc {
 	return func(c echo.Context) error {
