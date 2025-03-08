@@ -1,0 +1,16 @@
+package element
+
+templ SpanIcon(icon string) {
+	<span
+		class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl"
+	>
+		<iconify-icon icon={ icon }></iconify-icon>
+	</span>
+}
+
+templ SpanTogglePassword(dataToggle string) {
+	<span
+		class="toggle-password ri-eye-line cursor-pointer absolute end-0 top-1/2 -translate-y-1/2 me-4 text-secondary-light"
+		data-toggle={ dataToggle }
+	></span>
+}

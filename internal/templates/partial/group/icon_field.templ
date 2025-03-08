@@ -1,0 +1,24 @@
+package group
+
+import "github.com/garnizeh/go-web-boilerplate/internal/templates/partial/element"
+
+templ IconField(
+	outerDivClass templ.Attributes,
+	icon, inputType, id, placeholder, autocomplete, value string,
+	required, autofocus, err bool,
+	span templ.Component,
+) {
+	<div
+		if outerDivClass != nil {
+			{ outerDivClass... }
+		}
+	>
+		<div class="icon-field">
+			@element.SpanIcon(icon)
+			@element.InputText(inputType, id, placeholder, autocomplete, value, required, autofocus, err)
+		</div>
+		if span != nil {
+			@span
+		}
+	</div>
+}

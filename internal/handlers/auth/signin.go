@@ -25,7 +25,7 @@ var (
 func GetSignin(engine *templates.Engine) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		token := c.Get("sec").(string)
-		return engine.Render(c, auth.Signin(token))
+		return engine.Render(c, auth.Signin(token), true)
 	}
 }
 
@@ -62,14 +62,10 @@ func PostSignin(engine *templates.Engine) echo.HandlerFunc {
 			return err
 		}
 
-		if req.isRemember() {
-			req.Remember = "true"
-		}
-
 		if err := req.validate(); err != nil {
 			token := c.Get("sec").(string)
 			c.Response().WriteHeader(http.StatusUnauthorized)
-			return auth.SigninError(token).Render(c.Request().Context(), c.Response().Writer)
+			return engine.Render(c, auth.SigninError(token, req.Email, req.Password, req.Remember), false)
 		}
 
 		return c.JSON(200, req)

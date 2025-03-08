@@ -1,0 +1,16 @@
+package widget
+
+templ Form(CSRF, id, post string, elements []templ.Component) {
+	<form
+		id={ id }
+		hx-post="/auth/signin"
+		hx-trigger="submit"
+		hx-target-401={ "#" + id }
+	>
+
+		<input type="hidden" name="csrf_token" value={ CSRF }/>
+		for _, el := range elements {
+			@el
+		}
+	</form>
+}

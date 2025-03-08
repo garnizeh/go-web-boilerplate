@@ -8,7 +8,12 @@ package auth
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/garnizeh/go-web-boilerplate/internal/templates/views/common"
+import (
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/partial/element"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/partial/group"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/partial/widget"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/views/common"
+)
 
 func Signin(CSRF string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -31,20 +36,15 @@ func Signin(CSRF string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div hx-ext=\"response-targets\"><section class=\"bg-white dark:bg-dark-2 flex flex-wrap min-h-[100vh]\"><div class=\"lg:w-1/2 lg:block hidden\"><div class=\"flex items-center flex-col h-full justify-center\"><img src=\"/static/img/auth/auth-img.png\" alt=\"\"></div></div><div class=\"lg:w-1/2 py-8 px-6 flex flex-col justify-center\"><div class=\"lg:max-w-[464px] mx-auto w-full\"><div class=\"text-center\"><a href=\"/\" class=\"mb-2.5 max-w-[290px]\"><img src=\"/static/img/banner.png\" alt=\"\"></a><h4 class=\"mb-3\">Sign In to your Account</h4><p class=\"mb-8 text-secondary-light text-lg\">welcome back! please enter your detail</p></div><form id=\"signin-form\" hx-post=\"/auth/signin\" hx-trigger=\"submit\" hx-target-401=\"#signin-form\"><input type=\"hidden\" name=\"csrf_token\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div hx-ext=\"response-targets\"><section class=\"bg-white dark:bg-dark-2 flex flex-wrap min-h-[100vh]\"><div class=\"lg:w-1/2 lg:block hidden\"><div class=\"flex items-center flex-col h-full justify-center\"><img src=\"/static/img/auth/auth-img.png\" alt=\"\"></div></div><div class=\"lg:w-1/2 py-8 px-6 flex flex-col justify-center\"><div class=\"lg:max-w-[464px] mx-auto w-full\"><div class=\"text-center\"><a href=\"/\" class=\"mb-2.5 max-w-[290px]\"><img src=\"/static/img/banner.png\" alt=\"\"></a><h4 class=\"mb-3\">Sign In to your Account</h4><p class=\"mb-8 text-secondary-light text-lg\">welcome back! please enter your detail</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(CSRF)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/views/auth/signin.templ`, Line: 28, Col: 57}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		templ_7745c5c3_Err = formSignin(CSRF, "", "", "", false).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><div class=\"mb-4\"><div class=\"icon-field relative\"><span class=\"absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl\"><iconify-icon icon=\"mage:email\"></iconify-icon></span> <input type=\"email\" class=\"form-control h-[56px] ps-11 border-neutral-300 bg-neutral-50 dark:bg-dark-2 rounded-xl\" name=\"email\" id=\"email\" placeholder=\"john.doe@example.com\" required autocomplete=\"email\" autofocus></div></div><div class=\"relative mb-5\"><div class=\"icon-field\"><span class=\"absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl\"><iconify-icon icon=\"solar:lock-password-outline\"></iconify-icon></span> <input type=\"password\" class=\"form-control h-[56px] ps-11 rounded-xl border-neutral-300 bg-neutral-50 dark:bg-dark-2\" name=\"password\" id=\"password\" placeholder=\"secret\" required></div><span class=\"toggle-password ri-eye-line cursor-pointer absolute end-0 top-1/2 -translate-y-1/2 me-4 text-secondary-light\" data-toggle=\"#password\"></span></div><div class=\"mt-5\"><div class=\"flex justify-between gap-2\"><div class=\"flex items-center\"><input class=\"form-check-input border border-neutral-300\" type=\"checkbox\" value=\"true\" name=\"remember\" id=\"remember\"> <label class=\"ps-2\" for=\"remember\">Remember me</label></div><a href=\"/auth/forgotpassword\" class=\"text-primary-600 font-medium hover:underline\">Forgot Password?</a></div></div><button type=\"submit\" class=\"btn btn-primary justify-center text-sm btn-sm px-3 py-4 w-full rounded-xl mt-8 group-invalid:pointer-events-none group-invalid:opacity-30\">Sign In</button><div class=\"mt-8 text-center text-sm\"><p class=\"mb-0\">Don't have an account? <a href=\"/auth/signup\" class=\"text-primary-600 font-semibold hover:underline\">Sign Up</a></p></div></form></div></div></section></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"mt-8 text-center text-sm\"><p class=\"mb-0\">Don't have an account? <a href=\"/auth/signup\" class=\"text-primary-600 font-semibold hover:underline\">Sign Up</a></p></div></div></div></section></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -56,7 +56,40 @@ func Signin(CSRF string) templ.Component {
 	})
 }
 
-func SigninError(CSRF string) templ.Component {
+func SigninError(CSRF, email, password, remember string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var2 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var2 == nil {
+			templ_7745c5c3_Var2 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = formSignin(CSRF, email, password, remember, true).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.JSFuncCall("initializePasswordToggle", "toggle-password").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func formSignin(CSRF, email, password, remember string, err bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -77,22 +110,81 @@ func SigninError(CSRF string) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<form id=\"signin-form\" hx-post=\"/auth/signin\" hx-trigger=\"submit\" hx-target-401=\"#signin-form\"><input type=\"hidden\" name=\"csrf_token\" value=\"")
+		templ_7745c5c3_Err = widget.Form(CSRF, "signin-form", "/auth/signin", formElements(email, password, remember, err)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(CSRF)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/templates/views/auth/signin.templ`, Line: 98, Col: 53}
+		return nil
+	})
+}
+
+func formElements(email, password, remember string, err bool) []templ.Component {
+	if remember != "" {
+		remember = "checked"
+	}
+
+	return []templ.Component{
+		alert(err),
+		group.IconField(
+			templ.Attributes{"class": "relative mb-4"},
+			"mage:email",
+			"email",
+			"email",
+			"john.doe@example.com",
+			"email",
+			email,
+			true,
+			true,
+			err,
+			nil,
+		),
+		group.IconField(
+			templ.Attributes{"class": "relative mb-4"},
+			"solar:lock-password-outline",
+			"password",
+			"password",
+			"secret",
+			"",
+			password,
+			true,
+			false,
+			err,
+			element.SpanTogglePassword("password"),
+		),
+		group.RememberMe(
+			templ.SafeURL("/auth/forgotpassword"),
+			remember,
+		),
+		element.ButtonSubmit("Sign In"),
+	}
+}
+
+func alert(err bool) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\"><p class=\"text-sm text-danger-600\">invalid credentials</p><div class=\"mb-4\"><div class=\"icon-field relative\"><span class=\"absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl\"><iconify-icon icon=\"mage:email\"></iconify-icon></span> <input type=\"email\" class=\"form-control h-[56px] ps-11 border-danger-400 bg-danger-100 rounded-xl\" name=\"email\" id=\"email\" placeholder=\"john.doe@example.com\" required autocomplete=\"email\" autofocus></div></div><div class=\"relative mb-5\"><div class=\"icon-field\"><span class=\"absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl\"><iconify-icon icon=\"solar:lock-password-outline\"></iconify-icon></span> <input type=\"password\" class=\"form-control h-[56px] ps-11 rounded-xl border-danger-400 bg-danger-100\" name=\"password\" id=\"password\" placeholder=\"secret\" required></div><span class=\"toggle-password ri-eye-line cursor-pointer absolute end-0 top-1/2 -translate-y-1/2 me-4 text-secondary-light\" data-toggle=\"#password\"></span></div><div class=\"mt-5\"><div class=\"flex justify-between gap-2\"><div class=\"flex items-center\"><input class=\"form-check-input border border-neutral-300\" type=\"checkbox\" value=\"true\" name=\"remember\" id=\"remember\"> <label class=\"ps-2\" for=\"remember\">Remember me</label></div><a href=\"/auth/forgotpassword\" class=\"text-primary-600 font-medium hover:underline\">Forgot Password?</a></div></div><button type=\"submit\" class=\"btn btn-primary justify-center text-sm btn-sm px-3 py-4 w-full rounded-xl mt-8 group-invalid:pointer-events-none group-invalid:opacity-30\">Sign In</button><div class=\"mt-8 text-center text-sm\"><p class=\"mb-0\">Don't have an account? <a href=\"/auth/signup\" class=\"text-primary-600 font-semibold hover:underline\">Sign Up</a></p></div></form>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		if err {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p class=\"text-sm text-danger-600\">invalid credentials</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})
