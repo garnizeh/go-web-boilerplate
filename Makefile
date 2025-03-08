@@ -51,7 +51,8 @@ vuln:
 
 .PHONY: test
 test:
-	go test -race -v -timeout 30s ./...
+	go test -race -v -timeout 30s ./... -coverprofile cover.out
+	go tool cover -func cover.out
 
 # ==============================================================================
 # Building views
