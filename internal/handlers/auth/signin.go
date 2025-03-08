@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/garnizeh/go-web-boilerplate/internal/templates"
+	"github.com/garnizeh/go-web-boilerplate/internal/middleware"
 	"github.com/garnizeh/go-web-boilerplate/internal/templates/views/auth"
 	"github.com/garnizeh/go-web-boilerplate/pkg/validator"
 	"github.com/labstack/echo/v4"
@@ -22,11 +22,44 @@ var (
 	errInvalidPassword = errors.New("invalid password")
 )
 
-func GetSignin(engine *templates.Engine) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		token := c.Get("sec").(string)
-		return engine.Render(c, auth.Signin(token), true)
+func (a *Auth) GetSignin(c echo.Context) error {
+	token := c.Get("sec").(string)
+	return a.engine.Render(c, auth.Signin(token), true)
+}
+
+func (a *Auth) PostSignin(c echo.Context) error {
+	req := new(signinRequest)
+	if err := c.Bind(req); err != nil {
+		return err
 	}
+
+	badCredentialsFunc := func() error {
+		token := c.Get("sec").(string)
+		c.Response().WriteHeader(http.StatusUnauthorized)
+		return a.engine.Render(c, auth.SigninError(token, req.Email, req.Password, req.Remember), false)
+	}
+
+	if err := req.validate(); err != nil {
+		return badCredentialsFunc()
+	}
+
+	ctx := c.Request().Context()
+	user, err := a.userService.Signin(ctx, req.Email, req.Password)
+	if err != nil {
+		// TODO: check for email not verified case first
+		return badCredentialsFunc()
+	}
+
+	if !req.isRemember() {
+		if err := a.sessionManager.RenewToken(ctx); err != nil {
+			return c.Redirect(http.StatusSeeOther, "/error-500")
+		}
+	}
+
+	a.sessionManager.Put(ctx, middleware.ContextKeyEmail, user.Email)
+	a.sessionManager.RememberMe(ctx, req.isRemember())
+
+	return c.Redirect(http.StatusSeeOther, "/")
 }
 
 type signinRequest struct {
@@ -51,23 +84,6 @@ func (s *signinRequest) validate() error {
 	return nil
 }
 
-// func (s *signinRequest) isRemember() bool {
-// 	return s.Remember == "true"
-// }
-
-func PostSignin(engine *templates.Engine) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		req := new(signinRequest)
-		if err := c.Bind(req); err != nil {
-			return err
-		}
-
-		if err := req.validate(); err != nil {
-			token := c.Get("sec").(string)
-			c.Response().WriteHeader(http.StatusUnauthorized)
-			return engine.Render(c, auth.SigninError(token, req.Email, req.Password, req.Remember), false)
-		}
-
-		return c.JSON(200, req)
-	}
+func (s *signinRequest) isRemember() bool {
+	return s.Remember == "true"
 }

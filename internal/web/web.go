@@ -6,15 +6,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/garnizeh/go-web-boilerplate/embedded"
-	hauth "github.com/garnizeh/go-web-boilerplate/internal/handlers/auth"
+	"github.com/garnizeh/go-web-boilerplate/internal/handlers/auth"
 	mw "github.com/garnizeh/go-web-boilerplate/internal/middleware"
 	"github.com/garnizeh/go-web-boilerplate/internal/templates"
 	"github.com/garnizeh/go-web-boilerplate/pkg/sessionmanager"
 	"github.com/garnizeh/go-web-boilerplate/service"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	session "github.com/spazzymoto/echo-scs-session"
 )
 
 type Config struct {
@@ -113,11 +113,11 @@ func NewServer(
 
 	// Setup session management.
 	sessionManager := cfg.SessionManager.SessionManager()
-	e.Use(session.LoadAndSave(sessionManager))
+	e.Use(cfg.SessionManager.Echo())
 	e.Use(mw.PrepareSessionData(sessionManager, service.User(), cfg.AppName))
 
 	// Mount the router
-	mountRouter(e, cfg.AppName, isLocalhost)
+	mountRouter(e, sessionManager, service, cfg.AppName, isLocalhost)
 
 	// Setup static page serving.
 	staticG := e.Group("static")
@@ -141,22 +141,35 @@ func NewServer(
 	return e
 }
 
-func mountRouter(e *echo.Echo, appName string, isDebug bool) {
+func mountRouter(
+	e *echo.Echo,
+	sessionManager *scs.SessionManager,
+	service *service.Service,
+	appName string,
+	isDebug bool,
+) {
 	// Index
 	e.GET("/", func(c echo.Context) error {
-		return c.Redirect(http.StatusSeeOther, "/auth/signin")
-	})
+		return c.JSON(http.StatusOK, "auth ok")
+	}, mw.IsSignedInMiddleware)
 
 	// Setup templates engine
 	engine := templates.New(appName, isDebug)
 
 	// Auth group
 	authG := e.Group("auth")
-	mountAuth(authG, engine)
+	mountAuth(authG, sessionManager, service, engine)
 
 }
 
-func mountAuth(g *echo.Group, t *templates.Engine) {
-	g.GET("/signin", hauth.GetSignin(t))
-	g.POST("/signin", hauth.PostSignin(t))
+func mountAuth(
+	g *echo.Group,
+	sessionManager *scs.SessionManager,
+	service *service.Service,
+	engine *templates.Engine,
+) {
+	authHandler := auth.New(sessionManager, engine, service.User())
+
+	g.GET("/signin", authHandler.GetSignin, mw.IsSignedOutMiddleware)
+	g.POST("/signin", authHandler.PostSignin, mw.IsSignedOutMiddleware)
 }

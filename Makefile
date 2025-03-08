@@ -24,7 +24,7 @@ generate:
 	go tool sqlc generate
 
 dev-clean:
-	rm tmp/data/*
+	rm tmp/*
 
 # ==============================================================================
 # Git management
