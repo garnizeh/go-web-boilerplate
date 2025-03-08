@@ -60,42 +60,42 @@ func TestIsValidEmail(t *testing.T) {
 			email: "",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 1",
 			email: "a",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 2",
 			email: "a@",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 3",
 			email: "a@a",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 4",
 			email: "a@.com",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 5",
 			email: "a.a",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 6",
 			email: "a.com",
 			want:  false,
 		},
-        {
+		{
 			name:  "invalid format 7",
 			email: "@a.com",
 			want:  false,
 		},
-        {
+		{
 			name:  "valid",
 			email: "a@a.com",
 			want:  true,
