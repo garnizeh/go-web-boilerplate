@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const CSRFKey = "csrf"
+
 type auth struct {
 	engine         *templates.Engine
 	service        *service.Service

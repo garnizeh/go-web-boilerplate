@@ -95,7 +95,7 @@ func NewServer(
 		CookieHTTPOnly: true,
 		CookieSecure:   true,
 		CookieName:     "_sec",
-		ContextKey:     "sec",
+		ContextKey:     auth.CSRFKey,
 		CookiePath:     "/",
 		CookieSameSite: http.SameSiteStrictMode,
 		Skipper: func(c echo.Context) bool {
@@ -110,13 +110,13 @@ func NewServer(
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
 	}))
 
-	// Setup CSP
-	e.Use(mw.PrepareCSP(isLocalhost))
-
 	// Setup session management.
 	sessionManager := cfg.SessionManager.SessionManager()
 	e.Use(cfg.SessionManager.Echo())
 	e.Use(mw.PrepareSessionData(sessionManager, service.User(), cfg.AppName))
+
+	// Setup CSP
+	e.Use(mw.PrepareCSP())
 
 	// Setup request logger
 	e.Use(mw.PrepareLogger(cfg.Log))

@@ -23,8 +23,8 @@ var (
 )
 
 func (a *auth) getSignin(c echo.Context) error {
-	token := c.Get("sec").(string)
-	return a.engine.Render(c, vauth.Signin(token), true)
+	csrf := c.Get(CSRFKey).(string)
+	return a.engine.Render(c, vauth.Signin(csrf), true)
 }
 
 func (a *auth) postSignin(c echo.Context) error {
@@ -34,9 +34,9 @@ func (a *auth) postSignin(c echo.Context) error {
 	}
 
 	badCredentialsFunc := func() error {
-		token := c.Get("sec").(string)
+		csrf := c.Get(CSRFKey).(string)
 		c.Response().WriteHeader(http.StatusUnauthorized)
-		return a.engine.Render(c, vauth.SigninError(token, req.Email, req.Password, req.Remember), false)
+		return a.engine.Render(c, vauth.SigninError(csrf, req.Email, req.Password, req.Remember), false)
 	}
 
 	if err := req.validate(); err != nil {
