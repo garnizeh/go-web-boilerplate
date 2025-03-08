@@ -18,9 +18,12 @@ func New(title string, isDebug bool) *Engine {
 	}
 }
 
-func (e *Engine) Render(c echo.Context, contents templ.Component) error {
+func (e *Engine) Render(c echo.Context, contents templ.Component, full bool) error {
 	ctx := c.Request().Context()
 	w := c.Response().Writer
+	if full {
+		return viewlayout.Layout(contents, e.title, e.isDebug).Render(ctx, w)
+	}
 
-	return viewlayout.Layout(contents, e.title, e.isDebug).Render(ctx, w)
+	return contents.Render(ctx, w)
 }

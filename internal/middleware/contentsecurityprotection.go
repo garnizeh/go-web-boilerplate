@@ -8,7 +8,7 @@ import (
 )
 
 func PrepareCSP(isDebug bool) echo.MiddlewareFunc {
-	// TODO: change to use nonces
+	// TODO: change to use nonces: https://templ.guide/security/content-security-policy
 
 	//var csp string
 	csp := "default-src 'self'; base-uri 'self'; form-action 'self'; script-src 'self'; script-src-elem 'self' %s; script-src-attr 'self'; object-src 'self'; style-src 'self'; style-src-elem 'self' %s; style-src-attr 'self'; img-src 'self'; font-src 'self'; connect-src 'self' %s; media-src 'self'; frame-ancestors 'self'; frame-src 'self'; child-src 'self';"

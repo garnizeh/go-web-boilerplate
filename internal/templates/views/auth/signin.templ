@@ -1,6 +1,11 @@
 package auth
 
-import "github.com/garnizeh/go-web-boilerplate/internal/templates/views/common"
+import (
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/partial/element"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/partial/group"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/partial/widget"
+	"github.com/garnizeh/go-web-boilerplate/internal/templates/views/common"
+)
 
 templ Signin(CSRF string) {
 	<div hx-ext="response-targets">
@@ -19,68 +24,10 @@ templ Signin(CSRF string) {
 						<h4 class="mb-3">Sign In to your Account</h4>
 						<p class="mb-8 text-secondary-light text-lg">welcome back! please enter your detail</p>
 					</div>
-					<form
-						id="signin-form"
-						hx-post="/auth/signin"
-						hx-trigger="submit"
-						hx-target-401="#signin-form"
-					>
-						<input type="hidden" name="csrf_token" value={ CSRF }/>
-						<div class="mb-4">
-							<div class="icon-field relative">
-								<span class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl">
-									<iconify-icon icon="mage:email"></iconify-icon>
-								</span>
-								<input
-									type="email"
-									class="form-control h-[56px] ps-11 border-neutral-300 bg-neutral-50 dark:bg-dark-2 rounded-xl"
-									name="email"
-									id="email"
-									placeholder="john.doe@example.com"
-									required
-									autocomplete="email"
-									autofocus
-								/>
-							</div>
-						</div>
-						<div class="relative mb-5">
-							<div class="icon-field">
-								<span class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl">
-									<iconify-icon icon="solar:lock-password-outline"></iconify-icon>
-								</span>
-								<input
-									type="password"
-									class="form-control h-[56px] ps-11 rounded-xl border-neutral-300 bg-neutral-50 dark:bg-dark-2"
-									name="password"
-									id="password"
-									placeholder="secret"
-									required
-								/>
-							</div>
-							<span class="toggle-password ri-eye-line cursor-pointer absolute end-0 top-1/2 -translate-y-1/2 me-4 text-secondary-light" data-toggle="#password"></span>
-						</div>
-						<div class="mt-5">
-							<div class="flex justify-between gap-2">
-								<div class="flex items-center">
-									<input
-										class="form-check-input border border-neutral-300"
-										type="checkbox"
-										value="true"
-										name="remember"
-										id="remember"
-									/>
-									<label class="ps-2" for="remember">
-										Remember me
-									</label>
-								</div>
-								<a href="/auth/forgotpassword" class="text-primary-600 font-medium hover:underline">Forgot Password?</a>
-							</div>
-						</div>
-						<button type="submit" class="btn btn-primary justify-center text-sm btn-sm px-3 py-4 w-full rounded-xl mt-8 group-invalid:pointer-events-none group-invalid:opacity-30">Sign In</button>
-						<div class="mt-8 text-center text-sm">
-							<p class="mb-0">Don't have an account? <a href="/auth/signup" class="text-primary-600 font-semibold hover:underline">Sign Up</a></p>
-						</div>
-					</form>
+					@formSignin(CSRF, "", "", "", false)
+					<div class="mt-8 text-center text-sm">
+						<p class="mb-0">Don't have an account? <a href="/auth/signup" class="text-primary-600 font-semibold hover:underline">Sign Up</a></p>
+					</div>
 				</div>
 			</div>
 		</section>
@@ -88,70 +35,60 @@ templ Signin(CSRF string) {
 	@common.PasswordToggle()
 }
 
-templ SigninError(CSRF string) {
-	<form
-		id="signin-form"
-		hx-post="/auth/signin"
-		hx-trigger="submit"
-		hx-target-401="#signin-form"
-	>
-		<input type="hidden" name="csrf_token" value={ CSRF }/>
+templ SigninError(CSRF, email, password, remember string) {
+	@formSignin(CSRF, email, password, remember, true)
+	@templ.JSFuncCall("initializePasswordToggle", "toggle-password")
+}
+
+templ formSignin(CSRF, email, password, remember string, err bool) {
+	@widget.Form(CSRF, "signin-form", "/auth/signin", formElements(email, password, remember, err))
+}
+
+func formElements(email, password, remember string, err bool) []templ.Component {
+	if remember != "" {
+		remember = "checked"
+	}
+
+	return []templ.Component{
+		alert(err),
+		group.IconField(
+			templ.Attributes{"class": "relative mb-4"},
+			"mage:email",
+			"email",
+			"email",
+			"john.doe@example.com",
+			"email",
+			email,
+			true,
+			true,
+			err,
+			nil,
+		),
+		group.IconField(
+			templ.Attributes{"class": "relative mb-4"},
+			"solar:lock-password-outline",
+			"password",
+			"password",
+			"secret",
+			"",
+			password,
+			true,
+			false,
+			err,
+			element.SpanTogglePassword("password"),
+		),
+		group.RememberMe(
+			templ.SafeURL("/auth/forgotpassword"),
+			remember,
+		),
+		element.ButtonSubmit("Sign In"),
+	}
+}
+
+templ alert(err bool) {
+	if err {
 		<p class="text-sm text-danger-600">
 			invalid credentials
 		</p>
-		<div class="mb-4">
-			<div class="icon-field relative">
-				<span class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl">
-					<iconify-icon icon="mage:email"></iconify-icon>
-				</span>
-				<input
-					type="email"
-					class="form-control h-[56px] ps-11 border-danger-400 bg-danger-100 rounded-xl"
-					name="email"
-					id="email"
-					placeholder="john.doe@example.com"
-					required
-					autocomplete="email"
-					autofocus
-				/>
-			</div>
-		</div>
-		<div class="relative mb-5">
-			<div class="icon-field">
-				<span class="absolute start-4 top-1/2 -translate-y-1/2 pointer-events-none flex text-xl">
-					<iconify-icon icon="solar:lock-password-outline"></iconify-icon>
-				</span>
-				<input
-					type="password"
-					class="form-control h-[56px] ps-11 rounded-xl border-danger-400 bg-danger-100"
-					name="password"
-					id="password"
-					placeholder="secret"
-					required
-				/>
-			</div>
-			<span class="toggle-password ri-eye-line cursor-pointer absolute end-0 top-1/2 -translate-y-1/2 me-4 text-secondary-light" data-toggle="#password"></span>
-		</div>
-		<div class="mt-5">
-			<div class="flex justify-between gap-2">
-				<div class="flex items-center">
-					<input
-						class="form-check-input border border-neutral-300"
-						type="checkbox"
-						value="true"
-						name="remember"
-						id="remember"
-					/>
-					<label class="ps-2" for="remember">
-						Remember me
-					</label>
-				</div>
-				<a href="/auth/forgotpassword" class="text-primary-600 font-medium hover:underline">Forgot Password?</a>
-			</div>
-		</div>
-		<button type="submit" class="btn btn-primary justify-center text-sm btn-sm px-3 py-4 w-full rounded-xl mt-8 group-invalid:pointer-events-none group-invalid:opacity-30">Sign In</button>
-		<div class="mt-8 text-center text-sm">
-			<p class="mb-0">Don't have an account? <a href="/auth/signup" class="text-primary-600 font-semibold hover:underline">Sign Up</a></p>
-		</div>
-	</form>
+	}
 }

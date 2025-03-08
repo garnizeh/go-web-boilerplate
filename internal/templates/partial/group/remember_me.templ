@@ -1,0 +1,12 @@
+package group
+
+import "github.com/garnizeh/go-web-boilerplate/internal/templates/partial/element"
+
+templ RememberMe(url templ.SafeURL, checked string) {
+	<div class="mt-5">
+		<div class="flex justify-between gap-2">
+			@element.CheckBox("remember", checked, "Remember me")
+			@element.AHref(url, "text-primary-600 font-medium hover:underline", "Forgot Password?")
+		</div>
+	</div>
+}

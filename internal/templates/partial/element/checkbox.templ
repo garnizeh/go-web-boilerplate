@@ -1,0 +1,17 @@
+package element
+
+templ CheckBox(id, checked, label string) {
+	<div class="flex items-center">
+		<input
+			class="form-check-input border border-neutral-300"
+			type="checkbox"
+			name={ id }
+			id={ id }
+			value="true"
+			if checked != "" { checked }
+		/>
+		<label class="ps-2" for={ id }>
+			{ label }
+		</label>
+	</div>
+}

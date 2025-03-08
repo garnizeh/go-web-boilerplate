@@ -1,0 +1,29 @@
+package element
+
+func class(err bool) string {
+	if err {
+		return "form-control h-[56px] ps-11 border-danger-600 bg-danger-100 dark:bg-dark-2 rounded-xl"
+	}
+
+	return "form-control h-[56px] ps-11 border-neutral-300 bg-neutral-50 dark:bg-dark-2 rounded-xl"
+}
+
+templ InputText(inputType, id, placeholder, autocomplete, value string, required, autofocus, err bool) {
+	<input
+		type={ inputType }
+		class={ class(err) }
+		name={ id }
+		id={ id }
+		placeholder={ placeholder }
+		if autocomplete != "" {
+			autocomplete={ autocomplete }
+		}
+		value={ value }
+		if required {
+			required
+		}
+		if autofocus {
+			autofocus
+		}
+	/>
+}
