@@ -11,6 +11,7 @@ import (
 	"github.com/garnizeh/go-web-boilerplate/internal/handlers/auth"
 	mw "github.com/garnizeh/go-web-boilerplate/internal/middleware"
 	"github.com/garnizeh/go-web-boilerplate/internal/templates"
+	"github.com/garnizeh/go-web-boilerplate/pkg/logger"
 	"github.com/garnizeh/go-web-boilerplate/pkg/sessionmanager"
 	"github.com/garnizeh/go-web-boilerplate/service"
 	"github.com/labstack/echo/v4"
@@ -24,14 +25,14 @@ type Config struct {
 	BindAddress string
 	SessionsDSN string
 
-	ReadTimeout     time.Duration
-	WriteTimeout    time.Duration
-	IdleTimeout     time.Duration
-	ShutdownTimeout time.Duration
-
+	ReadTimeout        time.Duration
+	WriteTimeout       time.Duration
+	IdleTimeout        time.Duration
+	ShutdownTimeout    time.Duration
 	CORSAllowedOrigins []string
 
 	SessionManager *sessionmanager.SessionManager
+	Log            *logger.Logger
 }
 
 func (c Config) Address() string {
@@ -67,14 +68,15 @@ func NewServer(
 	e.HideBanner = !isLocalhost
 	e.HidePort = !isLocalhost
 
+	e.Use(mw.PrepareLoggerValues(cfg.Log))
+	e.Use(mw.PrepareMetricsWithRecover(cfg.Log))
+
 	if !isLocalhost {
 		e.Pre(middleware.HTTPSRedirect())
-
 	}
 
 	e.Use(middleware.BodyLimit("1k"))
 
-	e.Use(middleware.Recover())
 	e.Use(middleware.RequestID())
 
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
@@ -116,8 +118,11 @@ func NewServer(
 	e.Use(cfg.SessionManager.Echo())
 	e.Use(mw.PrepareSessionData(sessionManager, service.User(), cfg.AppName))
 
+	// Setup request logger
+	e.Use(mw.PrepareLogger(cfg.Log))
+
 	// Mount the router
-	mountRouter(e, sessionManager, service, cfg.AppName, isLocalhost)
+	mountRouter(cfg.Log, e, sessionManager, service, cfg.AppName, isLocalhost)
 
 	// Setup static page serving.
 	staticG := e.Group("static")
@@ -142,6 +147,7 @@ func NewServer(
 }
 
 func mountRouter(
+	log *logger.Logger,
 	e *echo.Echo,
 	sessionManager *scs.SessionManager,
 	service *service.Service,
@@ -158,18 +164,5 @@ func mountRouter(
 
 	// Auth group
 	authG := e.Group("auth")
-	mountAuth(authG, sessionManager, service, engine)
-
-}
-
-func mountAuth(
-	g *echo.Group,
-	sessionManager *scs.SessionManager,
-	service *service.Service,
-	engine *templates.Engine,
-) {
-	authHandler := auth.New(sessionManager, engine, service.User())
-
-	g.GET("/signin", authHandler.GetSignin, mw.IsSignedOutMiddleware)
-	g.POST("/signin", authHandler.PostSignin, mw.IsSignedOutMiddleware)
+	auth.Mount(log, authG, sessionManager, engine, service)
 }

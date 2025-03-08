@@ -101,7 +101,7 @@ func (log *Logger) write(ctx context.Context, level Level, caller int, msg strin
 
 type ctxKey int
 
-const key ctxKey = 1
+const Key ctxKey = 1
 
 // Values represent state for each request.
 type Values struct {
@@ -111,7 +111,7 @@ type Values struct {
 }
 
 func (log *Logger) getTraceID(ctx context.Context) string {
-	v, ok := ctx.Value(key).(*Values)
+	v, ok := ctx.Value(Key).(*Values)
 	if !ok {
 		return "00000000-0000-0000-0000-000000000000"
 	}

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/garnizeh/go-web-boilerplate/internal/middleware"
-	"github.com/garnizeh/go-web-boilerplate/internal/templates/views/auth"
+	vauth "github.com/garnizeh/go-web-boilerplate/internal/templates/views/auth"
 	"github.com/garnizeh/go-web-boilerplate/pkg/validator"
 	"github.com/labstack/echo/v4"
 )
@@ -22,12 +22,12 @@ var (
 	errInvalidPassword = errors.New("invalid password")
 )
 
-func (a *Auth) GetSignin(c echo.Context) error {
+func (a *auth) getSignin(c echo.Context) error {
 	token := c.Get("sec").(string)
-	return a.engine.Render(c, auth.Signin(token), true)
+	return a.engine.Render(c, vauth.Signin(token), true)
 }
 
-func (a *Auth) PostSignin(c echo.Context) error {
+func (a *auth) postSignin(c echo.Context) error {
 	req := new(signinRequest)
 	if err := c.Bind(req); err != nil {
 		return err
@@ -36,7 +36,7 @@ func (a *Auth) PostSignin(c echo.Context) error {
 	badCredentialsFunc := func() error {
 		token := c.Get("sec").(string)
 		c.Response().WriteHeader(http.StatusUnauthorized)
-		return a.engine.Render(c, auth.SigninError(token, req.Email, req.Password, req.Remember), false)
+		return a.engine.Render(c, vauth.SigninError(token, req.Email, req.Password, req.Remember), false)
 	}
 
 	if err := req.validate(); err != nil {
@@ -44,7 +44,7 @@ func (a *Auth) PostSignin(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	user, err := a.userService.Signin(ctx, req.Email, req.Password)
+	user, err := a.service.User().Signin(ctx, req.Email, req.Password)
 	if err != nil {
 		// TODO: check for email not verified case first
 		return badCredentialsFunc()
