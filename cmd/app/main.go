@@ -292,10 +292,10 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 		BindAddress: cfg.Web.BindAddress,
 		SessionsDSN: cfg.DBSessions.DSN,
 
-		ReadTimeout:     cfg.Web.ReadTimeout,
-		WriteTimeout:    cfg.Web.WriteTimeout,
-		IdleTimeout:     cfg.Web.IdleTimeout,
-		ShutdownTimeout: cfg.Web.ShutdownTimeout,
+		ReadTimeout:        cfg.Web.ReadTimeout,
+		WriteTimeout:       cfg.Web.WriteTimeout,
+		IdleTimeout:        cfg.Web.IdleTimeout,
+		ShutdownTimeout:    cfg.Web.ShutdownTimeout,
 		CORSAllowedOrigins: cfg.Web.CORSAllowedOrigins,
 
 		SessionManager: sessionManager,
