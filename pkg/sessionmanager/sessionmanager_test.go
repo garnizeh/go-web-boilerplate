@@ -38,7 +38,9 @@ func TestSession(t *testing.T) {
 		return c.String(http.StatusOK, "")
 	})
 
-	h(c)
+	if err := h(c); err != nil {
+		t.Fatalf("failed to set session: %v", err)
+	}
 
 	assert.Equal(t, rec.Result().StatusCode, 200)
 	assert.Equal(t, len(rec.Result().Cookies()), 1)
@@ -59,7 +61,9 @@ func TestSession(t *testing.T) {
 		return c.String(http.StatusOK, msg)
 	})
 
-	h(c)
+	if err := h(c); err != nil {
+		t.Fatalf("failed to set session: %v", err)
+	}
 
 	assert.Equal(t, rec.Result().StatusCode, 200)
 	assert.Equal(t, rec.Body.String(), "Hello from a session!")
