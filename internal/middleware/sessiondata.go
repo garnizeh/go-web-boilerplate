@@ -10,9 +10,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-const contextKeyEmail = "email"
+const (
+	ContextKeyEmail = "email"
+	sessiondataKey  = "sessionData"
+)
 
-type SessionData struct {
+type sessionData struct {
 	AppName   string
 	UserEmail string
 	UserName  string
@@ -20,8 +23,8 @@ type SessionData struct {
 	CSRFToken string
 }
 
-func (sd SessionData) SignedIn() bool {
-	return sd.UserEmail != "" && sd.UserName != ""
+func (s sessionData) SignedIn() bool {
+	return s.UserEmail != ""
 }
 
 func PrepareSessionData(sessionManager *scs.SessionManager, users *user.Service, appName string) echo.MiddlewareFunc {
@@ -33,10 +36,9 @@ func PrepareSessionData(sessionManager *scs.SessionManager, users *user.Service,
 				return next(c)
 			}
 
-			sessionData := SessionData{AppName: appName}
-
 			ctx := req.Context()
-			email := sessionManager.GetString(ctx, contextKeyEmail)
+			email := sessionManager.GetString(ctx, ContextKeyEmail)
+			sessionData := sessionData{AppName: appName}
 			if email != "" {
 				user, err := users.GetUser(ctx, email)
 				if err != nil {
@@ -48,12 +50,13 @@ func PrepareSessionData(sessionManager *scs.SessionManager, users *user.Service,
 				sessionData.UserName = user.Name
 				sessionData.UserRoles = user.Roles
 			}
+
 			tk, ok := c.Get("csc").(string)
 			if ok {
 				sessionData.CSRFToken = tk
 			}
 
-			c.Set("sessionData", sessionData)
+			c.Set(sessiondataKey, sessionData)
 			return next(c)
 		}
 	}

@@ -234,6 +234,14 @@ func run(ctx context.Context, log *logger.Logger, prefix string) error {
 
 	service := service.New(securepass, mailer, dbApp)
 
+	// TODO: remove me!!!
+	if err := service.User().Signup(ctx, "asdf", "a@a.com", "test", "12345"); err != nil {
+		log.Error(ctx, "startup", "seed test user failed", err)
+	}
+	if _, err := dbApp.RDBMS().Exec("update users set verified_at=1 where email='a@a.com'"); err != nil {
+		log.Error(ctx, "startup", "seed set test user verified failed", err)
+	}
+
 	// -------------------------------------------------------------------------
 	// Session Management Support
 
