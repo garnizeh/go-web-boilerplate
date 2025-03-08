@@ -3,16 +3,6 @@ BUILD := $(shell git rev-parse HEAD)
 GOENVPATH = $(shell go env GOPATH)
 
 # ==============================================================================
-# Install external tools
-
-.PHONY: install-tailwindcss
-install-tailwindcss:
-	curl -sLO https://github.com/tailwindlabs/tailwindcss/releases/latest/download/tailwindcss-linux-x64
-	chmod +x tailwindcss-linux-x64
-	sudo mv tailwindcss-linux-x64 /usr/local/bin/
-
-
-# ==============================================================================
 # Database support
 
 # need to pass the name of the file as argument

@@ -59,7 +59,10 @@ func (a *Auth) PostSignin(c echo.Context) error {
 	a.sessionManager.Put(ctx, middleware.ContextKeyEmail, user.Email)
 	a.sessionManager.RememberMe(ctx, req.isRemember())
 
-	return c.Redirect(http.StatusSeeOther, "/")
+	w := c.Response()
+	w.Header().Set("HX-Redirect", "/")
+	w.WriteHeader(http.StatusOK)
+	return nil
 }
 
 type signinRequest struct {
