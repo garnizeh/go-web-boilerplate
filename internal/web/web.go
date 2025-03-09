@@ -68,6 +68,7 @@ func NewServer(
 	e.HideBanner = !isLocalhost
 	e.HidePort = !isLocalhost
 
+	e.Use(middleware.RequestID())
 	e.Use(mw.PrepareLoggerValues(cfg.Log))
 	e.Use(mw.PrepareMetricsWithRecover(cfg.Log))
 
@@ -76,8 +77,6 @@ func NewServer(
 	}
 
 	e.Use(middleware.BodyLimit("1k"))
-
-	e.Use(middleware.RequestID())
 
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20)))
 

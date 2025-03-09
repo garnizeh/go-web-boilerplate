@@ -11,10 +11,11 @@ import (
 
 const valuesKey = "values"
 
-func newValues() *logger.Values {
+func newValues(requestID string) *logger.Values {
 	return &logger.Values{
-		TraceID: uuid.NewString(),
-		Now:     time.Now().UTC(),
+		TraceID:   uuid.NewString(),
+		RequestID: requestID,
+		Now:       time.Now().UTC(),
 	}
 }
 
@@ -22,9 +23,8 @@ func getValues(c echo.Context) *logger.Values {
 	v, ok := c.Get(valuesKey).(*logger.Values)
 	if !ok {
 		return &logger.Values{
-			TraceID:    "00000000-0000-0000-0000-000000000000",
-			Now:        time.Now(),
-			StatusCode: 0,
+			TraceID: "00000000-0000-0000-0000-000000000000",
+			Now:     time.Now(),
 		}
 	}
 
@@ -55,8 +55,10 @@ func PrepareLogger(log *logger.Logger) echo.MiddlewareFunc {
 
 			err := next(c)
 
+			c.Response().Header().Get(echo.HeaderXCorrelationID)
+
 			log.Info(ctx, "request completed", "method", method, "path", path, "remote_addr", remoteAddr,
-				"status_code", v.StatusCode, "since", time.Since(v.Now).String())
+				"status_code", c.Response().Status, "since", time.Since(v.Now).String(), "request_id", v.RequestID)
 
 			return err
 		}
@@ -66,9 +68,11 @@ func PrepareLogger(log *logger.Logger) echo.MiddlewareFunc {
 func PrepareLoggerValues(log *logger.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			v := newValues()
+			requestID := c.Response().Header().Get(echo.HeaderXRequestID)
+			v := newValues(requestID)
 
 			c.Set(valuesKey, v)
+			c.Response().Header().Set(echo.HeaderXCorrelationID, v.TraceID)
 
 			err := next(c)
 			if err != nil {
