@@ -57,14 +57,14 @@ test:
 # ==============================================================================
 # Building views
 
-.PHONY: templ-generate
-templ-generate:
+.PHONY: templ
+templ:
 	go tool templ generate
 
 # ==============================================================================
 # Building app
 
-all: dependencies templ-generate check-cicd test build
+all: dependencies templ check-cicd test build
 
 dev:
 	go build -o ./tmp/main ./cmd/main.go && air

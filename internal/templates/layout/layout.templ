@@ -14,6 +14,7 @@ templ header(title, nonce string, isDebug bool) {
 
       <script defer src="/static/js/htmx.js" nonce={ nonce }></script>
       <script defer src="/static/js/htmx-ext-response-targets.js" nonce={ nonce }></script>
+      <script defer src="/static/js/alpine.js" nonce={ nonce }></script>
       <script defer src="/static/js/iconify-icon.js" nonce={ nonce }></script>
     } else {
       <link rel="stylesheet" href="/static/css/style.min.css"/>
@@ -22,6 +23,7 @@ templ header(title, nonce string, isDebug bool) {
 
       <script defer src="/static/js/htmx.min.js" nonce={ nonce }></script>
       <script defer src="/static/js/htmx-ext-response-targets.min.js" nonce={ nonce }></script>
+      <script defer src="/static/js/alpine.min.js" nonce={ nonce }></script>
       <script defer src="/static/js/iconify-icon.min.js" nonce={ nonce }></script>
     }
   </head>
