@@ -20,12 +20,12 @@ jobs:
       with:
         go-version-file: "go.mod"
 
-    - name: Update Dependencies
-      run: make dependencies
-
     - name: Compile Templates
       run: make templ
 
+    - name: Update Dependencies
+      run: make dependencies
+      
     - name: Check Dependencies Changes
       run: if [ -n "$(git status --porcelain)" ]; then git status --porcelain && exit 1; fi
 
