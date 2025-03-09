@@ -56,7 +56,6 @@ func PrepareLogger(log *logger.Logger) echo.MiddlewareFunc {
 			err := next(c)
 
 			c.Response().Header().Get(echo.HeaderXCorrelationID)
-
 			log.Info(ctx, "request completed", "method", method, "path", path, "remote_addr", remoteAddr,
 				"status_code", c.Response().Status, "since", time.Since(v.Now).String(), "request_id", v.RequestID)
 

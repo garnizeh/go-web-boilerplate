@@ -105,9 +105,9 @@ const Key ctxKey = 1
 
 // Values represent state for each request.
 type Values struct {
-	TraceID string
+	TraceID   string
 	RequestID string
-	Now     time.Time
+	Now       time.Time
 }
 
 func (log *Logger) getTraceID(ctx context.Context) string {
