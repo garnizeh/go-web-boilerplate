@@ -34,3 +34,6 @@ bin/
 
 # dev files
 cmd/dev/
+
+# compiled templ files
+*_templ.go
